@@ -2,11 +2,11 @@
 import {BASE, DERIVED, EDITOR, SYSTEM, USER} from '../core/manager.js';
 
 /**
- * @description 拖拽管理器 - 用于管理拖拽操作
+ * @description Drag Manager - Used to manage drag operations
  */
 export class Drag {
     constructor() {
-        // 初始化变换参数
+        // Initialize transformation parameters
         this.translateX = 0;
         this.translateY = 0;
         this.scale = 1;
@@ -18,12 +18,12 @@ export class Drag {
         this.zoomRange = [-2, 5];
         this.elements = new Map();
 
-        // 新增阈值变量
-        this.dragThreshold = 5; // 移动超过5px视为拖拽
+        // New threshold variables
+        this.dragThreshold = 5; // Movement exceeding 5px is considered a drag
         this.initialPosition = { x: 0, y: 0 };
         this.shouldDrag = false;
 
-        // 创建容器结构
+        // Create container structure
         this.dragContainer = document.createElement('div');
         this.dragContainer.style.position = 'relative';
         this.dragContainer.style.display = 'flex';
@@ -43,12 +43,12 @@ export class Drag {
         this.dragSpace.style.left = '0';
         this.dragSpace.style.bottom = '0';
         // this.dragSpace.style.outline = '3px solid #41b681'
-        this.dragSpace.style.willChange = 'transform';  // 优化：提示浏览器 transform 可能会变化
+        this.dragSpace.style.willChange = 'transform';  // Optimization: hint the browser that transform may change
         this.dragSpace.style.pointerEvents = 'auto';
         this.dragContainer.appendChild(this.dragSpace);
 
 
-        // 分离手机和电脑事件
+        // Separate mobile and desktop events
         if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
             this.dragThreshold = 1;
             this.dragSpace.style.transition = 'transform 0.05s cubic-bezier(0, 0, 0.58, 1)';
@@ -63,7 +63,7 @@ export class Drag {
     }
 
     /**
-     * 获取渲染元素，用于挂载到页面上
+     * Get the rendering element for mounting onto the page
      * @returns {HTMLDivElement}
      */
     get render() {
@@ -71,7 +71,7 @@ export class Drag {
     }
 
     /**
-     * 添加元素，支持设置初始位置，默认为[0, 0]
+     * Add an element, supports setting an initial position, defaulting to [0, 0]
      * @example add('name', element, [100, 100])
      * @param name
      * @param element
@@ -86,7 +86,7 @@ export class Drag {
     }
 
     /**
-     * 移动元素到指定位置，默认为[0, 0]
+     * Move an element to a specified position, defaulting to [0, 0]
      * @example move('name', [100, 100])
      * @param name
      * @param position
@@ -100,7 +100,7 @@ export class Drag {
     }
 
     /**
-     * 删除元素，同时会从页面上移除
+     * Remove an element, also removing it from the page
      * @example delete('name')
      * @param name
      */
@@ -113,10 +113,10 @@ export class Drag {
     }
 
 
-    /** ------------------ 以下为拖拽功能实现，为事件处理函数，不需要手动调用 ------------------ */
-        // 鼠标按下事件
+    /** ------------------ The following implements drag functionality as event handlers and should not be called manually ------------------ */
+        // Mouse down event
     handleMouseDown = (e) => {
-        // 获取点击位置的所有元素
+        // Get all elements at the click position
         // const elements = document.elementsFromPoint(e.clientX, e.clientY);
         // console.log(elements);
 
@@ -124,11 +124,11 @@ export class Drag {
             let clientX, clientY, touches;
             if (e.type === 'touchstart') {
                 touches = e.touches;
-                if (touches.length > 0) { // 确保 touches 数组不为空
+                if (touches.length > 0) { // Ensure the touches array is not empty
                     clientX = touches[0].clientX;
                     clientY = touches[0].clientY;
                 } else {
-                    return; // 如果 touches 为空，则直接返回，不处理
+                    return; // If touches is empty, return immediately without processing
                 }
                 document.addEventListener('touchmove', this.handleFirstMove, { passive: false });
                 document.addEventListener('touchend', this.handleMouseUp, { passive: true });
@@ -193,8 +193,8 @@ export class Drag {
             if (e.touches.length === 0) return;
             this.translateX = e.touches[0].clientX - this.canvasStartX
             this.translateY = e.touches[0].clientY - this.canvasStartY
-            this.updateTransform(); // 更新位移
-            e.preventDefault();     // 阻止默认行为减少卡顿
+            this.updateTransform(); // Update translation
+            e.preventDefault();     // Prevent default behavior to reduce stutter
         } else {
             const deltaX = (e.clientX - this.translateX) / this.scale - this.canvasStartX;
             const deltaY = (e.clientY - this.translateY) / this.scale - this.canvasStartY;
@@ -204,9 +204,9 @@ export class Drag {
     };
 
 
-    // 鼠标释放事件
+    // Mouse up event
     handleMouseUp = (e) => {
-        // 分离手机和电脑事件
+        // Separate mobile and desktop events
         if (e.type === 'touchend') {
             document.removeEventListener('touchmove', this.handleFirstMove);
             document.removeEventListener('touchmove', this.handleMouseMove);
@@ -217,20 +217,20 @@ export class Drag {
             document.removeEventListener('mouseup', this.handleMouseUp);
         }
 
-        // 重置状态
+        // Reset state
         this.isDragging = false;
         this.shouldDrag = false;
         this.dragSpace.style.pointerEvents = 'auto';
         this.dragContainer.style.cursor = 'grab';
     };
 
-    // 滚轮缩放事件
+    // Wheel zoom event
     handleWheel = (e) => {
         e.preventDefault();
         const originalScale = this.scale;
         const zoomFactor = this.zoomValue ** (e.deltaY > 0 ? 1 : -1);
 
-        // 计算新缩放比例
+        // Calculate new scale
         let newScale = originalScale * zoomFactor;
         newScale = Math.min(
             Math.max(newScale, Math.pow(this.zoomValue, this.zoomRange[1])),
@@ -239,12 +239,12 @@ export class Drag {
         newScale = Math.round(newScale * 100) / 100;
         this.scale = newScale;
 
-        // 计算缩放中心
+        // Calculate zoom center
         const rect = this.dragContainer.getBoundingClientRect();
         const mouseX = e.clientX - rect.left;
         const mouseY = e.clientY - rect.top;
 
-        // 计算新的位移值
+        // Calculate new translation values
         const worldX = (mouseX - this.translateX) / originalScale;
         const worldY = (mouseY - this.translateY) / originalScale;
 
@@ -255,7 +255,7 @@ export class Drag {
         this.updateTransform();
     };
 
-    // 应用位移量
+    // Apply translation offset
     mergeOffset(x, y) {
         this.accumulatedX += x;
         this.accumulatedY += y;
@@ -275,7 +275,7 @@ export class Drag {
 
     updateTransform() {
         requestAnimationFrame(() => {
-            // 使用transform3d触发GPU加速
+            // Use transform3d to trigger GPU acceleration
             this.dragSpace.style.transform = `translate3d(${this.translateX}px, ${this.translateY}px, 0) scale(${this.scale})`;
         });
     }
