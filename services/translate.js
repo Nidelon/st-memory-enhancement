@@ -27,16 +27,8 @@ async function fetchTranslations(locale) {
 }
 
 async function getTranslationsConfig() {
-    if (_lang === undefined) {
-        _lang = applicationFunctionManager.getCurrentLocale();
-    }
-    if (_lang === undefined) {
-        _lang = 'zh-cn';
-        return { translations: {}, lang: _lang };
-    }
-    if (_translations === undefined) {
-        _translations = await fetchTranslations(_lang)
-    }
+    _lang = 'en';
+    _translations = await fetchTranslations(_lang)
     return { translations: _translations, lang: _lang };
 }
 
