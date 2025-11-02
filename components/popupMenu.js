@@ -1,24 +1,23 @@
-
 const MenuItemType = {
     normal: 'normal',
     warning: 'warning',
 }
 
 /**
- * @description 弹出菜单类 - 用于创建和管理弹出菜单
+ * @description Popup menu class - used to create and manage popup menus
  */
 export class PopupMenu {
     ItemType = MenuItemType
     /**
-     * 静态属性，用于存储当前活动的 PopupMenu 实例，使其在全局范围内作为单例使用
+     * Static property used to store the currently active PopupMenu instance, making it a singleton globally
      * @type {null}
      */
     static instance = null;
 
     /**
-     * 构造函数
-     * @param {object} [options] - 可选配置项
-     * @param {boolean} [options.lasting=false] - 是否持久化，为 true 时点击外部或菜单项点击后不销毁实例，只隐藏
+     * Constructor
+     * @param {object} [options] - Optional configuration
+     * @param {boolean} [options.lasting=false] - Whether the menu is persistent; if true, the instance won't be destroyed when clicking outside or on a menu item—only hidden
      */
     constructor(options = {}) {
         if (PopupMenu.instance) {
@@ -39,7 +38,7 @@ export class PopupMenu {
     add(html, event, type = MenuItemType.normal) {
         const index = this.menuItems.length;
         this.menuItems.push({ html, event, type });
-        this.menuItemIndexMap.set(html, index); // 存储 HTML 内容与索引的映射
+        this.menuItemIndexMap.set(html, index); // Store mapping between HTML content and index
     }
 
     renderMenu() {
@@ -61,7 +60,7 @@ export class PopupMenu {
 
             this.menuContainer.appendChild(menuItem);
 
-            // 存储菜单项元素与索引的映射
+            // Store mapping between menu item element and its index
             this.menuItemIndexMap.set(menuItem, index);
         });
 
@@ -69,13 +68,13 @@ export class PopupMenu {
     }
 
     /**
-     * 显示菜单
-     * @param {number} x - 菜单显示的横坐标 (相对于父元素)
-     * @param {number} y - 菜单显示的纵坐标 (相对于父元素)
-     * @returns {Promise} 返回一个 Promise，在菜单关闭时 resolve
+     * Show the menu
+     * @param {number} x - Horizontal coordinate where the menu appears (relative to the parent element)
+     * @param {number} y - Vertical coordinate where the menu appears (relative to the parent element)
+     * @returns {Promise} Returns a Promise that resolves when the menu is closed
      */
     async show(x = 0, y = 0) {
-        // 清理之前的关闭 Promise
+        // Clean up any previous close Promise
         if (this._closePromise) {
             this._closeResolver?.();
             this._closePromise = null;
@@ -87,7 +86,7 @@ export class PopupMenu {
         this.popupContainer.style.display = 'block';
         this.popupContainer.style.zIndex = '9999';
 
-        // 创建新的 Promise 用于跟踪关闭事件
+        // Create a new Promise to track the close event
         this._closePromise = new Promise((resolve) => {
             this._closeResolver = resolve;
         });
@@ -100,21 +99,21 @@ export class PopupMenu {
     }
 
     /**
-     * 隐藏菜单
+     * Hide the menu
      */
     hide() {
         this.cancelFrameUpdate();
         this.popupContainer.style.display = 'none';
         document.removeEventListener('click', this.handleClickOutside.bind(this));
 
-        // 触发关闭 Promise 的 resolve
+        // Resolve the close Promise
         this._closeResolver?.();
         this._closePromise = null;
         this._closeResolver = null;
     }
 
     /**
-     * 销毁菜单
+     * Destroy the menu
      */
     destroy() {
         this.cancelFrameUpdate();
@@ -123,7 +122,7 @@ export class PopupMenu {
             this.popupContainer.parentNode.removeChild(this.popupContainer);
         }
 
-        // 触发关闭 Promise 的 resolve
+        // Resolve the close Promise
         this._closeResolver?.();
         this._closePromise = null;
         this._closeResolver = null;
@@ -132,7 +131,7 @@ export class PopupMenu {
     #init(options) {
         this.menuItems = [];
         this.lasting = options.lasting === true;
-        this.menuItemIndexMap = new Map();      // 使用 Map 存储菜单项与其索引的映射关系
+        this.menuItemIndexMap = new Map();      // Use a Map to store the mapping between menu items and their indices
 
         this.popupContainer = document.createElement('div');
         this.popupContainer.style.position = 'absolute';
@@ -169,7 +168,7 @@ export class PopupMenu {
     handleMenuItemClick(event) {
         const menuItemElement = event.target.closest('.dynamic-popup-menu-item');
         if (menuItemElement) {
-            // 直接从 Map 中获取索引
+            // Get the index directly from the Map
             const index = this.menuItemIndexMap.get(menuItemElement);
             if (index !== undefined && this.menuItems[index].event) {
                 this.menuItems[index].event(event);
@@ -183,7 +182,7 @@ export class PopupMenu {
     }
 
     /**
-     * 处理点击菜单外部区域，用于关闭菜单
+     * Handle clicks outside the menu area to close the menu
      * @param {MouseEvent} event
      */
     handleClickOutside(event) {
@@ -197,19 +196,19 @@ export class PopupMenu {
     }
 
     frameUpdate(callback) {
-        // 清理现有的动画循环
+        // Cancel any existing animation loop
         this.cancelFrameUpdate();
 
-        // 只在菜单显示时启动动画循环
+        // Start the animation loop only when the menu is visible
         if (this.popupContainer.style.display !== 'none') {
             const updateLoop = (timestamp) => {
-                // 如果菜单被隐藏，停止循环
+                // Stop the loop if the menu is hidden
                 if (this.popupContainer.style.display === 'none') {
                     this.cancelFrameUpdate();
                     return;
                 }
 
-                callback(this, timestamp); // 添加 timestamp 参数以便更精确的动画控制
+                callback(this, timestamp); // Pass timestamp for more precise animation control
                 this._frameUpdateId = requestAnimationFrame(updateLoop);
             };
 
