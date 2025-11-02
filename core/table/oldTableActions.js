@@ -1,9 +1,9 @@
 import {BASE, DERIVED, EDITOR, SYSTEM, USER} from '../manager.js';
 
 /**
- * 将单元格中的逗号替换为/符号
+ * Replace commas in a cell with forward slashes (/)
  * @param {string | number} cell
- * @returns 处理后的单元格值
+ * @returns Processed cell value
  */
 function handleCellValue(cell) {
     if (typeof cell === 'string') {
@@ -15,33 +15,33 @@ function handleCellValue(cell) {
 }
 
 /**
- * 在表格末尾插入行
+ * Insert a row at the end of the table
  * @deprecated
- * @param {number} tableIndex 表格索引
- * @param {object} data 插入的数据
- * @returns 新插入行的索引
+ * @param {number} tableIndex Table index
+ * @param {object} data Data to insert
+ * @returns Index of the newly inserted row
  */
 export function insertRow(tableIndex, data) {
-    if (tableIndex == null) return EDITOR.error('insert函数，tableIndex函数为空');
-    if (data == null) return EDITOR.error('insert函数，data函数为空');
+    if (tableIndex == null) return EDITOR.error('insert function: tableIndex is null');
+    if (data == null) return EDITOR.error('insert function: data is null');
 
-    // 获取表格对象，支持新旧系统
+    // Get table object, supporting both old and new systems
     const table = DERIVED.any.waitingTable[tableIndex];
 
-    // 检查是否为新系统的Sheet对象
+    // Check if it's a Sheet object from the new system
     if (table.uid && table.hashSheet) {
-        // 新系统：使用Sheet类API
+        // New system: use Sheet class API
         try {
-            // 获取当前行数（不包括表头）
+            // Get current number of rows (excluding header)
             const rowCount = table.hashSheet.length - 1;
 
-            // 在最后一行后面插入新行
-            const cell = table.findCellByPosition(0, 0); // 获取表格源单元格
-            cell.newAction('insertDownRow'); // 在最后一行后插入新行
+            // Insert a new row after the last row
+            const cell = table.findCellByPosition(0, 0); // Get the source cell of the table
+            cell.newAction('insertDownRow'); // Insert a new row after the last row
 
-            // 填充数据
+            // Fill in data
             Object.entries(data).forEach(([key, value]) => {
-                const colIndex = parseInt(key) + 1; // +1 因为第一列是行索引
+                const colIndex = parseInt(key) + 1; // +1 because the first column is the row index
                 if (colIndex < table.hashSheet[0].length) {
                     const cell = table.findCellByPosition(rowCount + 1, colIndex);
                     if (cell) {
@@ -50,111 +50,111 @@ export function insertRow(tableIndex, data) {
                 }
             });
 
-            console.log(`插入成功: table ${tableIndex}, row ${rowCount + 1}`);
+            console.log(`Insert successful: table ${tableIndex}, row ${rowCount + 1}`);
             return rowCount + 1;
         } catch (error) {
-            console.error('插入行失败:', error);
+            console.error('Failed to insert row:', error);
             return -1;
         }
     } else {
-        // 旧系统：保持原有逻辑
+        // Old system: keep original logic
         const newRowArray = new Array(table.columns.length).fill("");
         Object.entries(data).forEach(([key, value]) => {
             newRowArray[parseInt(key)] = handleCellValue(value);
         });
 
         const dataStr = JSON.stringify(newRowArray);
-        // 检查是否已存在相同行
+        // Check if an identical row already exists
         if (table.content.some(row => JSON.stringify(row) === dataStr)) {
-            console.log(`跳过重复插入: table ${tableIndex}, data ${dataStr}`);
-            return -1; // 返回-1表示未插入
+            console.log(`Skipped duplicate insertion: table ${tableIndex}, data ${dataStr}`);
+            return -1; // Return -1 to indicate no insertion occurred
         }
         table.content.push(newRowArray);
         const newRowIndex = table.content.length - 1;
-        console.log(`插入成功 (旧系统): table ${tableIndex}, row ${newRowIndex}`);
+        console.log(`Insert successful (old system): table ${tableIndex}, row ${newRowIndex}`);
         return newRowIndex;
     }
 }
 
 /**
- * 删除行
+ * Delete a row
  * @deprecated
- * @param {number} tableIndex 表格索引
- * @param {number} rowIndex 行索引
+ * @param {number} tableIndex Table index
+ * @param {number} rowIndex Row index
  */
 export function deleteRow(tableIndex, rowIndex) {
-    if (tableIndex == null) return EDITOR.error('delete函数，tableIndex函数为空');
-    if (rowIndex == null) return EDITOR.error('delete函数，rowIndex函数为空');
+    if (tableIndex == null) return EDITOR.error('delete function: tableIndex is null');
+    if (rowIndex == null) return EDITOR.error('delete function: rowIndex is null');
 
-    // 获取表格对象，支持新旧系统
+    // Get table object, supporting both old and new systems
     const table = DERIVED.any.waitingTable[tableIndex];
 
-    // 检查是否为新系统的Sheet对象
+    // Check if it's a Sheet object from the new system
     if (table.uid && table.hashSheet) {
-        // 新系统：使用Sheet类API
+        // New system: use Sheet class API
         try {
-            // 确保行索引有效（考虑表头行）
-            const actualRowIndex = rowIndex + 1; // +1 因为第一行是表头
+            // Ensure row index is valid (accounting for header row)
+            const actualRowIndex = rowIndex + 1; // +1 because the first row is the header
 
-            // 检查行索引是否有效
+            // Validate row index
             if (actualRowIndex >= table.hashSheet.length || actualRowIndex <= 0) {
-                console.error(`无效的行索引: ${rowIndex}`);
+                console.error(`Invalid row index: ${rowIndex}`);
                 return;
             }
 
-            // 获取要删除行的单元格并触发删除操作
+            // Get the cell of the row to delete and trigger deletion
             const cell = table.findCellByPosition(actualRowIndex, 0);
             if (cell) {
                 cell.newAction('deleteSelfRow');
-                console.log(`删除成功: table ${tableIndex}, row ${rowIndex}`);
+                console.log(`Delete successful: table ${tableIndex}, row ${rowIndex}`);
             } else {
-                console.error(`未找到行: ${rowIndex}`);
+                console.error(`Row not found: ${rowIndex}`);
             }
         } catch (error) {
-            console.error('删除行失败:', error);
+            console.error('Failed to delete row:', error);
         }
     } else {
-        // 旧系统：保持原有逻辑
+        // Old system: keep original logic
         if (table.content && rowIndex >= 0 && rowIndex < table.content.length) {
             table.content.splice(rowIndex, 1);
-            console.log(`删除成功 (旧系统): table ${tableIndex}, row ${rowIndex}`);
+            console.log(`Delete successful (old system): table ${tableIndex}, row ${rowIndex}`);
         } else {
-            console.error(`删除失败 (旧系统): table ${tableIndex}, 无效的行索引 ${rowIndex} 或 content 不存在`);
+            console.error(`Delete failed (old system): table ${tableIndex}, invalid row index ${rowIndex} or content does not exist`);
         }
     }
 }
 
 /**
- * 更新单个行的信息
+ * Update data of a single row
  * @deprecated
- * @param {number} tableIndex 表格索引
- * @param {number} rowIndex 行索引
- * @param {object} data 更新的数据
+ * @param {number} tableIndex Table index
+ * @param {number} rowIndex Row index
+ * @param {object} data Updated data
  */
 export function updateRow(tableIndex, rowIndex, data) {
-    if (tableIndex == null) return EDITOR.error('update函数，tableIndex函数为空');
-    if (rowIndex == null) return EDITOR.error('update函数，rowIndex函数为空');
-    if (data == null) return EDITOR.error('update函数，data函数为空');
+    if (tableIndex == null) return EDITOR.error('update function: tableIndex is null');
+    if (rowIndex == null) return EDITOR.error('update function: rowIndex is null');
+    if (data == null) return EDITOR.error('update function: data is null');
 
-    // 获取表格对象，支持新旧系统
+    // Get table object, supporting both old and new systems
     const table = DERIVED.any.waitingTable[tableIndex];
 
-    // 检查是否为新系统的Sheet对象
+    // Check if it's a Sheet object from the new system
     if (table.uid && table.hashSheet) {
-        // 新系统：使用Sheet类API
+        // New system: use Sheet class API
         try {
-            // 确保行索引有效（考虑表头行）
-            const actualRowIndex = rowIndex + 1; // +1 因为第一行是表头
+            // Ensure row index is valid (accounting for header row)
+            const actualRowIndex = rowIndex + 1; // +1 because the first row is the header
 
-            // 检查行索引是否有效
+            // Validate row index
             if (actualRowIndex >= table.hashSheet.length || actualRowIndex <= 0) {
-                console.error(`无效的行索引: ${rowIndex}`);
+                console.error(`Invalid row index: ${rowIndex}`);
                 return;
             }
 
-            // 更新行数据
+            // Update row data
             Object.entries(data).forEach(([key, value]) => {
-                const colIndex = parseInt(key) + 1; // +1 因为第一列是行索引
+                const colIndex = parseInt(key) + 1; // +1 because the first column is the row index
                 if (colIndex < table.hashSheet[0].length) {
                     const cell = table.findCellByPosition(actualRowIndex, colIndex);
                     if (cell) {
@@ -163,21 +163,21 @@ export function updateRow(tableIndex, rowIndex, data) {
                 }
             });
 
-            // 保存更改
+            // Save changes
             table.save();
-            console.log(`更新成功: table ${tableIndex}, row ${rowIndex}`);
+            console.log(`Update successful: table ${tableIndex}, row ${rowIndex}`);
         } catch (error) {
-            console.error('更新行失败:', error);
+            console.error('Failed to update row:', error);
         }
     } else {
-        // 旧系统：保持原有逻辑
+        // Old system: keep original logic
         if (table.content && table.content[rowIndex]) {
             Object.entries(data).forEach(([key, value]) => {
                 table.content[rowIndex][parseInt(key)] = handleCellValue(value);
             });
-            console.log(`更新成功 (旧系统): table ${tableIndex}, row ${rowIndex}`);
+            console.log(`Update successful (old system): table ${tableIndex}, row ${rowIndex}`);
         } else {
-            console.error(`更新失败 (旧系统): table ${tableIndex}, row ${rowIndex} 不存在或 content 不存在`);
+            console.error(`Update failed (old system): table ${tableIndex}, row ${rowIndex} does not exist or content does not exist`);
         }
     }
 }
