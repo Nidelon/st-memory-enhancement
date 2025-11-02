@@ -1,8 +1,8 @@
 /**
- * 外部数据适配器模块
+ * External Data Adapter Module
  * 
- * 功能：为外部程序提供数据注入接口，将外部数据转发给项目内部的核心处理模块
- * 设计原则：最小侵入性，不修改原项目核心逻辑，仅作为数据转发和格式适配层
+ * Function: Provides a data injection interface for external programs, forwarding external data to the project's internal core processing module.
+ * Design Principle: Minimal invasiveness—does not modify the original project's core logic; serves only as a data forwarding and format adaptation layer.
  * 
  * @module external-data-adapter
  * @version 1.0.0
@@ -14,7 +14,7 @@ import { executeTableEditActions, getTableEditTag, updateSheetsView } from './in
 import { BASE, USER } from './core/manager.js';
 
 /**
- * 适配器状态
+ * Adapter state
  */
 const adapterState = {
     initialized: false,
@@ -24,7 +24,7 @@ const adapterState = {
 };
 
 /**
- * 日志工具
+ * Logger utility
  */
 const logger = {
     info: (message, ...args) => {
@@ -45,75 +45,75 @@ const logger = {
 };
 
 /**
- * 数据验证器
+ * Data validator
  */
 const validator = {
     /**
-     * 验证表格是否存在
+     * Validates whether tables exist
      */
     checkTablesExist() {
         try {
             const sheets = BASE.getChatSheets();
             if (!sheets || sheets.length === 0) {
-                return { valid: false, error: '未找到任何表格，请先在聊天中创建表格' };
+                return { valid: false, error: 'No tables found. Please create a table in the chat first.' };
             }
             const enabledSheets = sheets.filter(sheet => sheet.enable);
             if (enabledSheets.length === 0) {
-                return { valid: false, error: '没有启用的表格，请启用至少一个表格' };
+                return { valid: false, error: 'No enabled tables. Please enable at least one table.' };
             }
             return { valid: true, sheets: enabledSheets };
         } catch (error) {
-            return { valid: false, error: `表格检查失败: ${error.message}` };
+            return { valid: false, error: `Table check failed: ${error.message}` };
         }
     },
 
     /**
-     * 验证 tableEdit 指令格式
+     * Validates tableEdit command format
      */
     validateTableEditString(editString) {
         if (typeof editString !== 'string' || !editString.trim()) {
-            return { valid: false, error: '编辑指令必须是非空字符串' };
+            return { valid: false, error: 'Edit command must be a non-empty string.' };
         }
 
-        // 检查是否包含有效的操作函数
+        // Check if it contains a valid operation function
         const validOperations = ['insertRow', 'updateRow', 'deleteRow'];
         const hasValidOperation = validOperations.some(op => editString.includes(op));
         
         if (!hasValidOperation) {
-            return { valid: false, error: `编辑指令必须包含以下操作之一: ${validOperations.join(', ')}` };
+            return { valid: false, error: `Edit command must include one of the following operations: ${validOperations.join(', ')}` };
         }
 
         return { valid: true };
     },
 
     /**
-     * 验证 JSON 操作对象
+     * Validates JSON operation object
      */
     validateJsonOperation(operation) {
         if (!operation || typeof operation !== 'object') {
-            return { valid: false, error: '操作必须是对象' };
+            return { valid: false, error: 'Operation must be an object.' };
         }
 
         const { type, tableIndex } = operation;
 
         if (!['insert', 'update', 'delete'].includes(type)) {
-            return { valid: false, error: `无效的操作类型: ${type}` };
+            return { valid: false, error: `Invalid operation type: ${type}` };
         }
 
         if (typeof tableIndex !== 'number' || tableIndex < 0) {
-            return { valid: false, error: `无效的表格索引: ${tableIndex}` };
+            return { valid: false, error: `Invalid table index: ${tableIndex}` };
         }
 
         if (type === 'insert' && !operation.data) {
-            return { valid: false, error: 'insert 操作必须包含 data 字段' };
+            return { valid: false, error: 'Insert operation must include a data field.' };
         }
 
         if (type === 'update' && (!operation.data || typeof operation.rowIndex !== 'number')) {
-            return { valid: false, error: 'update 操作必须包含 data 和 rowIndex 字段' };
+            return { valid: false, error: 'Update operation must include both data and rowIndex fields.' };
         }
 
         if (type === 'delete' && typeof operation.rowIndex !== 'number') {
-            return { valid: false, error: 'delete 操作必须包含 rowIndex 字段' };
+            return { valid: false, error: 'Delete operation must include a rowIndex field.' };
         }
 
         return { valid: true };
@@ -121,25 +121,25 @@ const validator = {
 };
 
 /**
- * 格式转换器
+ * Format converter
  */
 const converter = {
     /**
-     * 从 XML 格式提取编辑指令
-     * @param {string} xmlString - 包含 <tableEdit> 标签的 XML 字符串
-     * @returns {string[]} 编辑指令数组
+     * Extracts edit commands from XML format
+     * @param {string} xmlString - XML string containing <tableEdit> tags
+     * @returns {string[]} Array of edit commands
      */
     extractFromXml(xmlString) {
-        logger.debug('提取 XML 格式数据', xmlString);
+        logger.debug('Extracting XML-formatted data', xmlString);
         const { matches } = getTableEditTag(xmlString);
-        logger.debug('提取结果', matches);
+        logger.debug('Extraction result', matches);
         return matches;
     },
 
     /**
-     * 将 JSON 操作对象转换为 tableEdit 指令字符串
-     * @param {Object} operation - 操作对象
-     * @returns {string} tableEdit 指令字符串
+     * Converts a JSON operation object to a tableEdit command string
+     * @param {Object} operation - Operation object
+     * @returns {string} tableEdit command string
      */
     jsonToTableEditString(operation) {
         const { type, tableIndex, rowIndex, data } = operation;
@@ -155,17 +155,17 @@ const converter = {
                 return `deleteRow(${tableIndex}, ${rowIndex})`;
             
             default:
-                throw new Error(`未知的操作类型: ${type}`);
+                throw new Error(`Unknown operation type: ${type}`);
         }
     },
 
     /**
-     * 将 JSON 操作数组转换为 matches 数组
-     * @param {Object[]} operations - 操作对象数组
-     * @returns {string[]} matches 数组
+     * Converts an array of JSON operations to a matches array
+     * @param {Object[]} operations - Array of operation objects
+     * @returns {string[]} matches array
      */
     jsonArrayToMatches(operations) {
-        logger.debug('转换 JSON 操作数组', operations);
+        logger.debug('Converting JSON operation array', operations);
         
         const instructions = operations.map(op => {
             const validation = validator.validateJsonOperation(op);
@@ -176,153 +176,153 @@ const converter = {
         });
 
         const combinedString = '<!--\n' + instructions.join('\n') + '\n-->';
-        logger.debug('生成的指令字符串', combinedString);
+        logger.debug('Generated instruction string', combinedString);
         
         return [combinedString];
     }
 };
 
 /**
- * 核心适配器函数
+ * Core adapter functions
  */
 const adapter = {
     /**
-     * 处理 XML 格式的 tableEdit 数据
-     * @param {string} xmlString - 包含 <tableEdit> 标签的 XML 字符串
-     * @returns {Promise<Object>} 处理结果 {success, message, data}
+     * Processes tableEdit data in XML format
+     * @param {string} xmlString - XML string containing <tableEdit> tags
+     * @returns {Promise<Object>} Result {success, message, data}
      */
     async processXmlData(xmlString) {
-        logger.info('处理 XML 格式数据');
+        logger.info('Processing XML-formatted data');
 
         try {
-            // 验证表格存在
+            // Validate table existence
             const tableCheck = validator.checkTablesExist();
             if (!tableCheck.valid) {
                 return { success: false, message: tableCheck.error };
             }
 
-            // 验证数据格式
+            // Validate data format
             const validation = validator.validateTableEditString(xmlString);
             if (!validation.valid) {
                 return { success: false, message: validation.error };
             }
 
-            // 提取编辑指令
+            // Extract edit commands
             const matches = converter.extractFromXml(xmlString);
             if (!matches || matches.length === 0) {
-                return { success: false, message: '未能从 XML 中提取有效的编辑指令' };
+                return { success: false, message: 'Failed to extract valid edit commands from XML.' };
             }
 
-            // 执行操作
+            // Execute operations
             const result = executeTableEditActions(matches, null);
 
             if (result) {
-                // 关键修复1：保存聊天数据到文件，确保数据持久化
+                // Critical fix 1: Save chat data to file to ensure persistence
                 try {
                     USER.saveChat();
-                    logger.debug('聊天数据已保存到文件');
+                    logger.debug('Chat data saved to file');
                 } catch (saveError) {
-                    logger.warn('保存聊天数据失败', saveError);
+                    logger.warn('Failed to save chat data', saveError);
                 }
 
-                // 关键修复2：刷新表格视图，确保界面更新
+                // Critical fix 2: Refresh sheet view to ensure UI updates
                 try {
                     await updateSheetsView();
-                    logger.debug('表格视图已刷新');
+                    logger.debug('Sheet view refreshed');
                 } catch (viewError) {
-                    logger.warn('刷新表格视图失败', viewError);
+                    logger.warn('Failed to refresh sheet view', viewError);
                 }
 
                 adapterState.operationCount++;
-                logger.info(`✅ 操作成功执行 (总计: ${adapterState.operationCount})`);
+                logger.info(`✅ Operation executed successfully (Total: ${adapterState.operationCount})`);
                 return {
                     success: true,
-                    message: '数据处理成功',
+                    message: 'Data processed successfully',
                     data: {
                         operationsExecuted: matches.length,
                         totalOperations: adapterState.operationCount
                     }
                 };
             } else {
-                return { success: false, message: '执行表格编辑操作失败，请查看控制台日志' };
+                return { success: false, message: 'Failed to execute table edit operations. Please check console logs.' };
             }
 
         } catch (error) {
-            logger.error('处理 XML 数据时发生错误', error);
-            return { success: false, message: `错误: ${error.message}`, error };
+            logger.error('Error occurred while processing XML data', error);
+            return { success: false, message: `Error: ${error.message}`, error };
         }
     },
 
     /**
-     * 处理 JSON 格式的操作数据
-     * @param {Object|Object[]} jsonData - JSON 操作对象或数组
-     * @returns {Promise<Object>} 处理结果 {success, message, data}
+     * Processes operation data in JSON format
+     * @param {Object|Object[]} jsonData - JSON operation object or array
+     * @returns {Promise<Object>} Result {success, message, data}
      */
     async processJsonData(jsonData) {
-        logger.info('处理 JSON 格式数据');
+        logger.info('Processing JSON-formatted data');
 
         try {
-            // 验证表格存在
+            // Validate table existence
             const tableCheck = validator.checkTablesExist();
             if (!tableCheck.valid) {
                 return { success: false, message: tableCheck.error };
             }
 
-            // 标准化为数组
+            // Normalize to array
             const operations = Array.isArray(jsonData) ? jsonData : 
                               (jsonData.operations ? jsonData.operations : [jsonData]);
 
             if (operations.length === 0) {
-                return { success: false, message: '操作数组为空' };
+                return { success: false, message: 'Operation array is empty.' };
             }
 
-            // 转换为 matches 格式
+            // Convert to matches format
             const matches = converter.jsonArrayToMatches(operations);
 
-            // 执行操作
+            // Execute operations
             const result = executeTableEditActions(matches, null);
 
             if (result) {
-                // 关键修复1：保存聊天数据到文件，确保数据持久化
+                // Critical fix 1: Save chat data to file to ensure persistence
                 try {
                     USER.saveChat();
-                    logger.debug('聊天数据已保存到文件');
+                    logger.debug('Chat data saved to file');
                 } catch (saveError) {
-                    logger.warn('保存聊天数据失败', saveError);
+                    logger.warn('Failed to save chat data', saveError);
                 }
 
-                // 关键修复2：刷新表格视图，确保界面更新
+                // Critical fix 2: Refresh sheet view to ensure UI updates
                 try {
                     await updateSheetsView();
-                    logger.debug('表格视图已刷新');
+                    logger.debug('Sheet view refreshed');
                 } catch (viewError) {
-                    logger.warn('刷新表格视图失败', viewError);
+                    logger.warn('Failed to refresh sheet view', viewError);
                 }
 
                 adapterState.operationCount++;
-                logger.info(`✅ 操作成功执行 (总计: ${adapterState.operationCount})`);
+                logger.info(`✅ Operation executed successfully (Total: ${adapterState.operationCount})`);
                 return {
                     success: true,
-                    message: '数据处理成功',
+                    message: 'Data processed successfully',
                     data: {
                         operationsExecuted: operations.length,
                         totalOperations: adapterState.operationCount
                     }
                 };
             } else {
-                return { success: false, message: '执行表格编辑操作失败，请查看控制台日志' };
+                return { success: false, message: 'Failed to execute table edit operations. Please check console logs.' };
             }
 
         } catch (error) {
-            logger.error('处理 JSON 数据时发生错误', error);
-            return { success: false, message: `错误: ${error.message}`, error };
+            logger.error('Error occurred while processing JSON data', error);
+            return { success: false, message: `Error: ${error.message}`, error };
         }
     },
 
     /**
-     * 自动检测格式并处理数据
-     * @param {string|Object} data - 输入数据（XML 字符串或 JSON 对象）
-     * @returns {Promise<Object>} 处理结果
+     * Automatically detects format and processes data
+     * @param {string|Object} data - Input data (XML string or JSON object)
+     * @returns {Promise<Object>} Processing result
      */
     async processData(data) {
         if (typeof data === 'string') {
@@ -330,29 +330,29 @@ const adapter = {
         } else if (typeof data === 'object') {
             return await this.processJsonData(data);
         } else {
-            return { success: false, message: '不支持的数据类型，请提供 XML 字符串或 JSON 对象' };
+            return { success: false, message: 'Unsupported data type. Please provide an XML string or JSON object.' };
         }
     }
 };
 
 /**
- * 初始化外部数据适配器
- * @param {Object} options - 配置选项
- * @param {boolean} options.debugMode - 是否启用调试模式
+ * Initializes the external data adapter
+ * @param {Object} options - Configuration options
+ * @param {boolean} options.debugMode - Whether to enable debug mode
  */
 export function initExternalDataAdapter(options = {}) {
     if (adapterState.initialized) {
-        logger.warn('适配器已经初始化');
+        logger.warn('Adapter already initialized');
         return;
     }
 
     adapterState.debugMode = options.debugMode || false;
     adapterState.initialized = true;
 
-    logger.info('外部数据适配器初始化成功');
-    logger.info(`调试模式: ${adapterState.debugMode ? '开启' : '关闭'}`);
+    logger.info('External data adapter initialized successfully');
+    logger.info(`Debug mode: ${adapterState.debugMode ? 'enabled' : 'disabled'}`);
 
-    // 将适配器接口暴露到全局
+    // Expose adapter interface globally
     if (typeof window !== 'undefined') {
         window.externalDataAdapter = {
             processXmlData: adapter.processXmlData.bind(adapter),
@@ -362,12 +362,12 @@ export function initExternalDataAdapter(options = {}) {
             setDebugMode: (enabled) => { adapterState.debugMode = enabled; },
             getLastError: () => adapterState.lastError
         };
-        logger.info('适配器接口已暴露到 window.externalDataAdapter');
+        logger.info('Adapter interface exposed to window.externalDataAdapter');
     }
 }
 
 /**
- * 导出适配器接口（用于 Node.js 环境或模块导入）
+ * Exports adapter interface (for Node.js environment or module imports)
  */
 export const externalDataAdapter = {
     processXmlData: adapter.processXmlData.bind(adapter),
@@ -379,4 +379,3 @@ export const externalDataAdapter = {
 };
 
 export default externalDataAdapter;
-
