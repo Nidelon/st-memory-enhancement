@@ -20,10 +20,10 @@ const CellType = {
 }
 
 /**
- * 单元格类，用于管理表格中的单元格数据
- * @description 单元格类用于管理表格中的单元格数据，包括单元格的位置、值、状态、类型等
- * @description 单元格类还提供了对单元格的操作，包括编辑、插入、删除等
- * @description 单元格类是 Sheet 类的子类，用于管理 Sheet 中的单元格数据
+ * Cell class for managing cell data within a spreadsheet
+ * @description The Cell class manages cell data in a spreadsheet, including position, value, status, type, etc.
+ * @description The Cell class also provides operations on cells, such as editing, inserting, and deleting.
+ * @description The Cell class is a subclass of the Sheet class and manages cell data within a Sheet.
  */
 export class Cell {
     static CellType = CellType;
@@ -35,7 +35,7 @@ export class Cell {
 
         this.type = '';
         this.status = '';
-        this.coordUid = undefined; // 用于存储单元格的坐标 uid
+        this.coordUid = undefined; // Used to store the cell's coordinate UID
         // this.targetUid = undefined;
         this.element = null;
         this.data = new Proxy({}, {
@@ -48,7 +48,7 @@ export class Cell {
             },
         });
 
-        this.customEventListeners = {}; // 存储自定义事件监听器，key 为事件名 (CellAction 或 '')，value 为回调函数
+        this.customEventListeners = {}; // Stores custom event listeners; key is event name (CellAction or ''), value is callback function
         this.#init(target);
     }
 
@@ -57,12 +57,12 @@ export class Cell {
     }
     get headerX() {
         const p = this.#positionInParentCellSheet();
-        const targetUid = this.parent.hashSheet[p[0]][0];   // 获取当前单元格所在行的第一个单元格的 uid
+        const targetUid = this.parent.hashSheet[p[0]][0];   // Get the UID of the first cell in the current row
         return this.parent.cells.get(targetUid);
     }
     get headerY() {
         const p = this.#positionInParentCellSheet();
-        const targetUid = this.parent.hashSheet[0][p[1]];   // 获取当前单元格所在列的第一个单元格的 uid
+        const targetUid = this.parent.hashSheet[0][p[1]];   // Get the UID of the first cell in the current column
         return this.parent.cells.get(targetUid);
     }
 
@@ -94,7 +94,7 @@ export class Cell {
             [rowIndex, colIndex] = this.#positionInParentCellSheet();
         }
 
-        // 使用 instanceof 获取 this.parent 是 Sheet类 还是 SheetTemplate类
+        // Use instanceof to determine whether this.parent is an instance of Sheet or SheetTemplate
         if (this.parent?.constructor?.name === 'SheetTemplate') {
             if (rowIndex === 0 && colIndex === 0) {
                 this.element.classList.add('sheet-cell-origin');
@@ -111,7 +111,7 @@ export class Cell {
             } else {
                 if (this.parent.type === SheetBase.SheetType.static) {
                     const pos = [getColumnLetter(colIndex - 1), rowIndex].join(''); // Cell position (A1, B2, C3...)
-                    this.element.textContent = this.data.value || pos; // 显示单元格值，默认为位置
+                    this.element.textContent = this.data.value || pos; // Display cell value; default to position
                     this.element.style.fontSize = '0.8rem';
                     this.element.style.fontWeight = 'normal';
                     this.element.style.color = 'var(--SmartThemeEmColor)'
@@ -146,38 +146,38 @@ export class Cell {
         }
     }
     /**
-     * 监听事件
-     * @description 监听事件，支持监听所有事件、特定 CellAction 事件、原生 DOM 事件
-     * @description 如果 event 为 `''` 字符串，则监听所有事件
-     * @description 如果 event 是 `CellAction` 事件，则监听特定的 CellAction 事件
-     * @description 如果 event 是原生 `DOM` 事件，则监听原生 DOM 事件
+     * Event listener
+     * @description Supports listening to all events, specific CellAction events, or native DOM events.
+     * @description If event is an empty string `''`, it listens to all #event events.
+     * @description If event matches a `CellAction`, it listens to that specific CellAction event.
+     * @description If event is a native `DOM` event, it attaches a native DOM event listener.
      * @param event
      * @param callback
      */
     on(event, callback) {
-        if (typeof callback !== 'function') throw new Error('回调函数必须是一个函数');
+        if (typeof callback !== 'function') throw new Error('Callback must be a function');
         if (event === '') {
             if (!this.customEventListeners['']) {
-                this.customEventListeners[''] = []; // 初始化为数组
+                this.customEventListeners[''] = []; // Initialize as array
             }
-            this.customEventListeners[''].push(callback);           // 监听所有 #event 事件
+            this.customEventListeners[''].push(callback);           // Listen to all #event events
         } else if (CellAction[event]) {
             if (!this.customEventListeners[event]) {
-                this.customEventListeners[event] = []; // 初始化为数组
+                this.customEventListeners[event] = []; // Initialize as array
             }
-            this.customEventListeners[event].push(callback);        // 监听特定的 CellAction 事件
+            this.customEventListeners[event].push(callback);        // Listen to specific CellAction event
         } else {
             try {
-                this.element.addEventListener(event, callback); // 监听原生 DOM 事件
+                this.element.addEventListener(event, callback); // Listen to native DOM event
             } catch (e) {
-                throw new Error(`无法监听事件: ${event}`);
+                throw new Error(`Failed to add event listener: ${event}`);
             }
         }
     }
 
-    /** _______________________________________ 以下函数不进行外部调用 _______________________________________ */
-    /** _______________________________________ 以下函数不进行外部调用 _______________________________________ */
-    /** _______________________________________ 以下函数不进行外部调用 _______________________________________ */
+    /** _______________________________________ Functions below are not intended for external use _______________________________________ */
+    /** _______________________________________ Functions below are not intended for external use _______________________________________ */
+    /** _______________________________________ Functions below are not intended for external use _______________________________________ */
 
     bridge = {
 
@@ -193,7 +193,7 @@ export class Cell {
                 targetCell = this.parent.cells.get(targetUid);
             }
             if (!targetCell) {
-                throw new Error(`未找到单元格，UID: ${targetUid}`);
+                throw new Error(`Cell not found, UID: ${targetUid}`);
             }
         }
         this.uid = targetCell.uid || `cell_${this.parent.uid.split('_')[1]}_${SYSTEM.generateRandomString(16)}`;
@@ -241,29 +241,29 @@ export class Cell {
                 this.#clearSheet();
                 break;
             default:
-                console.warn(`未处理的单元格操作: ${actionName}`);
+                console.warn(`Unhandled cell action: ${actionName}`);
         }
 
-        // 触发自定义事件监听器
+        // Trigger custom event listeners
         if (this.customEventListeners[actionName]) {
-            this.customEventListeners[actionName].forEach(callback => { // 遍历执行数组中的回调函数
-                callback(this, actionName, props); // 传递 cell 实例, actionName, 和 props
+            this.customEventListeners[actionName].forEach(callback => { // Execute all callbacks in the array
+                callback(this, actionName, props); // Pass cell instance, actionName, and props
             });
         }
         if (this.customEventListeners['']) {
-            this.customEventListeners[''].forEach(callback => { // 遍历执行数组中的回调函数
-                callback(this, actionName, props); // 监听所有事件的监听器
+            this.customEventListeners[''].forEach(callback => { // Execute all callbacks for global listeners
+                callback(this, actionName, props); // Global event listeners
             });
         }
         if (isSave) {
             this.parent.save();
         }
 
-        console.log(`单元格操作: ${actionName} 位置: ${[rowIndex, colIndex]}`);
+        console.log(`Cell action: ${actionName} Position: ${[rowIndex, colIndex]}`);
     }
     #handleEditCell(props = {}) {
         if (!props || Object.keys(props).length === 0) {
-            console.warn('未提供任何要修改的属性');
+            console.warn('No properties provided for modification');
             return;
         }
         let cell = new Cell(this.parent);
@@ -271,18 +271,18 @@ export class Cell {
         cell.data = { ...this.data, ...props };
         const [rowIndex, colIndex] = this.#positionInParentCellSheet()
         this.parent.cells.set(cell.uid, cell);
-        console.log("保存前的 cell", this.parent.cellHistory);
+        console.log("Cell before saving", this.parent.cellHistory);
         this.parent.cellHistory.push(cell);
         this.parent.hashSheet[rowIndex][colIndex] = cell.uid;
         this.parent.markPositionCacheDirty();
     }
 
     #insertRow(targetRowIndex) {
-        // 使用Array.from()方法在 hashSheet 中 targetRowIndex + 1 的位置插入新行
+        // Use Array.from() to insert a new row at targetRowIndex + 1 in hashSheet
         const newRow = Array.from({ length: this.parent.hashSheet[0].length }, (_, j) => {
-            let cell = new Cell(this.parent); // 创建新单元格
+            let cell = new Cell(this.parent); // Create new cell
             if (j === 0) {
-                // 如果是新行的第一个单元格（行头），设置 type 为 row_header
+                // If it's the first cell of the new row (row header), set type to row_header
                 cell.type = CellType.row_header;
             }
             this.parent.cells.set(cell.uid, cell);
@@ -293,7 +293,7 @@ export class Cell {
         this.parent.markPositionCacheDirty();
     }
     #insertColumn(colIndex) {
-        // 遍历每一行，在指定的 colIndex 位置插入新的单元格 UID
+        // Iterate through each row and insert a new cell UID at the specified colIndex
         this.parent.hashSheet = this.parent.hashSheet.map(row => {
             const newCell = new Cell(this.parent);
             this.parent.cells.set(newCell.uid, newCell);
@@ -304,7 +304,7 @@ export class Cell {
         this.parent.markPositionCacheDirty();
     }
     #deleteRow(rowIndex) {
-        console.log("删除行", rowIndex, this.parent.hashSheet.length)
+        console.log("Deleting row", rowIndex, this.parent.hashSheet.length)
         if (rowIndex === 0) return;
         if (this.parent.hashSheet.length < 2) return;
         this.parent.hashSheet.splice(rowIndex, 1);
@@ -320,6 +320,6 @@ export class Cell {
         this.parent.markPositionCacheDirty();
     }
     #clearSheet() {
-        throw new Error('未实现的方法');
+        throw new Error('Method not implemented');
     }
 }
