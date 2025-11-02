@@ -1,22 +1,22 @@
-// 检查插件是否加载
-console.log('插件版本:', window.stMemoryEnhancement?.VERSION);
+// Check if the plugin is loaded
+console.log('Plugin version:', window.stMemoryEnhancement?.VERSION);
 
-// 检查适配器是否初始化
-console.log('适配器状态:', window.externalDataAdapter?.getState());
+// Check if the adapter is initialized
+console.log('Adapter status:', window.externalDataAdapter?.getState());
 
 
 const xmlData = `<tableEdit> 
 <!-- 
-insertRow(0, {"0":"十月","1":"冬天/下雪","2":"学校","3":"<user>/悠悠"}) 
+insertRow(0, {"0":"October","1":"Winter/Snowing","2":"School","3":"<user>/Youyou"}) 
 deleteRow(1, 2) 
-insertRow(1, {"0":"悠悠", "1":"体重60kg/黑色长发", "2":"开朗活泼", "3":"学生", "4":"羽毛球", "5":"鬼灭之刃", "6":"宿舍", "7":"运动部部长"}) 
-insertRow(1, {"0":"<user>", "1":"制服/短发", "2":"忧郁", "3":"学生", "4":"唱歌", "5":"咒术回战", "6":"自己家", "7":"学生会长"}) 
-insertRow(2, {"0":"悠悠", "1":"同学", "2":"依赖/喜欢", "3":"高"}) 
-updateRow(4, 1, {"0": "小花", "1": "破坏表白失败", "2": "10月", "3": "学校","4":"愤怒"}) 
-insertRow(4, {"0": "<user>/悠悠", "1": "悠悠向<user>表白", "2": "2021-10-05", "3": "教室","4":"感动"}) 
-insertRow(5, {"0":"<user>","1":"社团赛奖品","2":"奖杯","3":"比赛第一名"}) 
+insertRow(1, {"0":"Youyou", "1":"Weight 60kg/Long black hair", "2":"Cheerful and lively", "3":"Student", "4":"Badminton", "5":"Demon Slayer", "6":"Dormitory", "7":"Sports Club President"}) 
+insertRow(1, {"0":"<user>", "1":"Uniform/Short hair", "2":"Melancholic", "3":"Student", "4":"Singing", "5":"Jujutsu Kaisen", "6":"Own home", "7":"Student Council President"}) 
+insertRow(2, {"0":"Youyou", "1":"Classmate", "2":"Dependent/Fond of", "3":"High"}) 
+updateRow(4, 1, {"0": "Xiaohua", "1": "Ruined confession failure", "2": "October", "3": "School","4":"Angry"}) 
+insertRow(4, {"0": "<user>/Youyou", "1": "Youyou confessed to <user>", "2": "2021-10-05", "3": "Classroom","4":"Touched"}) 
+insertRow(5, {"0":"<user>","1":"Club competition prize","2":"Trophy","3":"First place in competition"}) 
 --> 
 </tableEdit>`;
 
 const result = window.externalDataAdapter.processXmlData(xmlData);
-console.log('测试结果:', result);
+console.log('Test result:', result);
