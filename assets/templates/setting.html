@@ -2,42 +2,42 @@
 <div class="wide100p padding5 dataBankAttachments">
     <h2 class="marginBot5">
         <span>
-            修改表格结构
+            Modify Table Structure
         </span>
     </h2>
     <div>
-        在这里可以调整表格的说明以及各种编辑操作的提示词
+        Here you can adjust the table description and prompts for various editing operations.
     </div>
     <div class="dataTable_tablePrompt_list">
-        <label>表格名</label>
+        <label>Table Name</label>
         <input type="text" id="dataTable_tableSetting_tableName" class="margin0 text_pole" style=" margin-bottom: 20px;"/>
-        <label>表格说明</label><small> (给AI解释此表格的作用)</small>
+        <label>Table Description</label><small> (Explain to the AI the purpose of this table)</small>
         <textarea id="dataTable_tableSetting_note" class="wide100p" rows="2"></textarea>
         <div class="checkbox flex-container" style="margin-bottom: 10px;">
-            <input type="checkbox" id="dataTable_tableSetting_required"><span>是否必填</span>
+            <input type="checkbox" id="dataTable_tableSetting_required"><span>Required</span>
         </div>
-        <label>初始化提示词</label><small> (当表格为必填表时，但是又为空时，给AI的提示)</small>
+        <label>Initialization Prompt</label><small> (Prompt for the AI when the table is required but empty)</small>
         <textarea id="dataTable_tableSetting_initNode" class="wide100p" rows="2"></textarea>
-        <label>插入提示词</label><small> (解释什么时候应该插入行)</small>
+        <label>Insert Prompt</label><small> (Explain when a row should be inserted)</small>
         <textarea id="dataTable_tableSetting_insertNode" class="wide100p" rows="2"></textarea>
-        <label>更新提示词</label><small> (解释什么时候应该更新行)</small>
+        <label>Update Prompt</label><small> (Explain when a row should be updated)</small>
         <textarea id="dataTable_tableSetting_updateNode" class="wide100p" rows="2"></textarea>
-        <label>删除提示词</label><small> (解释什么时候应该删除行)</small>
+        <label>Delete Prompt</label><small> (Explain when a row should be deleted)</small>
         <textarea id="dataTable_tableSetting_deleteNode" class="wide100p" rows="2"></textarea>
 
-        <!-- 开启时将该表格推送至对话 -->
+        <!-- Push this table to the conversation when enabled -->
         <div class="checkbox flex-container" style="margin-bottom: 10px;">
             <input type="checkbox" id="dataTable_tableSetting_toChat">
-            <span>推送至对话</span>
-            <small> (开启时将该表格推送至对话)</small>
+            <span>Push to Conversation</span>
+            <small> (Push this table to the conversation when enabled)</small>
         </div>
         <div class="checkbox flex-container">
-            <label>推送样式</label><small> (编辑推送至对话的表格样式)</small>
+            <label>Push Style</label><small> (Edit the style of the table pushed to the conversation)</small>
         </div>
         <textarea id="dataTable_tableSetting_tableRender" class="wide100p" rows="2"></textarea>
-        <!-- 编辑推送至对话的表格样式 -->
+        <!-- Edit the style of the table pushed to the conversation -->
         <i class="menu_button menu_button_icon fa-solid fa-bug tableEditor_renderButton" data-index="${tableIndex}">
-            <a>在测试模式中编辑本表格样式</a>
+            <a>Edit this table style in test mode</a>
         </i>
     </div>
 </div>
@@ -45,16 +45,16 @@
 <div class="wide100p padding5 dataBankAttachments">
     <h2 class="marginBot5">
         <span>
-            分步填表设置
+            Step-by-Step Form Filling Settings
         </span>
     </h2>
     <div>
-        在这里可以调整分步填表的相关参数
+        Here you can adjust parameters related to step-by-step form filling.
     </div>
     <div class="dataTable_tablePrompt_list">
-        <label for="separateReadContextLayers">上下文层数</label><small> (控制分步填表读取的上下文层数)</small>
+        <label for="separateReadContextLayers">Context Layers</label><small> (Controls the number of context layers read during step-by-step form filling)</small>
         <input type="number" id="separateReadContextLayers" class="margin0 text_pole" style="margin-bottom: 20px; width: 80px;" min="0" value="1"/>
-        <label for="step_by_step_user_prompt">分步填表提示词</label><small> (用于分步填表时的提示词)</small>
+        <label for="step_by_step_user_prompt">Step-by-Step Form Filling Prompt</label><small> (Prompt used during step-by-step form filling)</small>
         <textarea id="step_by_step_user_prompt" class="wide100p" rows="10"></textarea>
     </div>
 </div>
