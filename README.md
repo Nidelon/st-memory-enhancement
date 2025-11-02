@@ -7,11 +7,11 @@
 </p>
 
 <p>
-    <a href="https://muyoo.com.cn/wiki/memory/">⚙️ Quick Install/Update</a>
+    <a href="https://muyoo-com-cn.translate.goog/wiki/memory/?_x_tr_sl=auto&_x_tr_tl=en">⚙️ Quick Install/Update</a>
     |
-    <a href="https://muyoo.com.cn/wiki/memory/start.html">🔄 Usage Guide</a>
+    <a href="https://muyoo-com-cn.translate.goog/wiki/memory/start.html?_x_tr_sl=auto&_x_tr_tl=en">🔄 Usage Guide</a>
     |
-    <a href="https://muyoo.com.cn/wiki/memory/installFaq.html">🔍 Troubleshooting</a>
+    <a href="https://muyoo-com-cn.translate.goog/wiki/memory/installFaq.html?_x_tr_sl=auto&_x_tr_tl=en">🔍 Troubleshooting</a>
 </p>
 
 <p>
