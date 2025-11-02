@@ -5,14 +5,14 @@ export async function customSheetsStylePopup() {
     const customStyleEditor = `
 <div class="column-editor">
     <div class="popup-content">
-        自定义推送至对话的表格的包裹样式，支持HTML与CSS，使用$0表示表格整体的插入位置
+        Customize the wrapper style for tables pushed to the chat. HTML and CSS are supported. Use $0 to indicate where the entire table should be inserted.
     </div>
     <div class="column-editor-body">
-        <textarea id="customStyleEditor" class="column-editor-textarea" rows="30" placeholder="请输入自定义样式"></textarea>
+        <textarea id="customStyleEditor" class="column-editor-textarea" rows="30" placeholder="Please enter custom style"></textarea>
     </div>
 </div>
 `
-    const customStylePopup = new EDITOR.Popup(customStyleEditor, EDITOR.POPUP_TYPE.CONFIRM, '', { large: true, okButton: "应用修改", cancelButton: "取消" });
+    const customStylePopup = new EDITOR.Popup(customStyleEditor, EDITOR.POPUP_TYPE.CONFIRM, '', { large: true, okButton: "Apply Changes", cancelButton: "Cancel" });
     const styleContainer = $(customStylePopup.dlg)[0];
     const resultDataContainer = styleContainer.querySelector("#customStyleEditor");
     resultDataContainer.style.display = "flex";
@@ -21,13 +21,13 @@ export async function customSheetsStylePopup() {
     resultDataContainer.style.width = "100%";
     resultDataContainer.style.height = "100%";
 
-    // 获取resultDataContainer中的resultData
+    // Get resultData from resultDataContainer
     let resultData = USER.tableBaseSetting.to_chat_container;
-    // 如果没有resultData，则使用默认值
+    // If no resultData exists, use the default value
     if (!resultData) {
         resultData = `<div class="table-container"><div class="table-content">$0</div></div>`;
     }
-    // 设置resultDataContainer的值
+    // Set the value of resultDataContainer
     resultDataContainer.value = resultData;
 
     await customStylePopup.show();
