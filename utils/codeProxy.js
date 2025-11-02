@@ -1,9 +1,9 @@
 import {BASE, DERIVED, EDITOR, SYSTEM, USER} from '../core/manager.js';
 
 /**
- * @description 辅助函数，递归创建 Proxy
- * @param {Object} obj - 要代理的对象
- * @returns {Object} - 创建的 Proxy 对象
+ * @description Helper function to recursively create a Proxy
+ * @param {Object} obj - The object to be proxied
+ * @returns {Object} - The created Proxy object
  */
 export const createProxy = (obj) => {
     return new Proxy(obj, {
@@ -11,7 +11,7 @@ export const createProxy = (obj) => {
             return target[prop];
         },
         set(target, prop, newValue) {
-            target[prop] = newValue; // 直接修改原始的 props 对象
+            target[prop] = newValue; // Directly modify the original props object
             return true;
         },
     });
@@ -20,39 +20,39 @@ export const createProxy = (obj) => {
 export const createProxyWithUserSetting = (target, allowEmpty = false) => {
     return new Proxy({}, {
         get: (_, property) => {
-            // console.log(`创建代理对象 ${target}`, property)
-            // 最优先从用户设置数据中获取
+            // console.log(`Creating proxy object ${target}`, property)
+            // Highest priority: fetch from user settings
             if (USER.getSettings()[target] && property in USER.getSettings()[target]) {
-                // console.log(`变量 ${property} 已从用户设置中获取`)
+                // console.log(`Variable ${property} has been retrieved from user settings`)
                 return USER.getSettings()[target][property];
             }
-            // 尝试从老版本的数据位置 USER.getExtensionSettings().muyoo_dataTable 中获取
+            // Attempt to fetch from legacy data location: USER.getExtensionSettings().muyoo_dataTable
             if (USER.getExtensionSettings()[target] && property in USER.getExtensionSettings()[target]) {
-                console.log(`变量 ${property} 未在用户配置中找到, 已从老版本数据中获取`)
+                console.log(`Variable ${property} not found in user configuration; retrieved from legacy data`)
                 const value = USER.getExtensionSettings()[target][property];
                 if (!USER.getSettings()[target]) {
-                    USER.getSettings()[target] = {}; // 初始化，如果不存在
+                    USER.getSettings()[target] = {}; // Initialize if not exists
                 }
                 USER.getSettings()[target][property] = value;
                 return value;
             }
-            // 如果 USER.getExtensionSettings().muyoo_dataTable 中也不存在，则从 defaultSettings 中获取
+            // If not found in legacy data either, fetch from defaultSettings
             if (USER.tableBaseDefaultSettings && property in USER.tableBaseDefaultSettings) {
-                console.log(`变量 ${property} 未找到, 已从默认设置中获取`)
+                console.log(`Variable ${property} not found; retrieved from default settings`)
                 return USER.tableBaseDefaultSettings[property];
             }
-            // 如果 defaultSettings 中也不存在，则检查是否允许为空
+            // If not found in defaultSettings either, check if empty values are allowed
             if (allowEmpty) {
                 return undefined;
             }
-            // 如果 defaultSettings 中也不存在，则报错
-            EDITOR.error(`变量 ${property} 未在默认设置中找到, 请检查代码`)
+            // If not found in defaultSettings and empty values are not allowed, throw an error
+            EDITOR.error(`Variable ${property} not found in default settings; please check the code`)
             return undefined;
         },
         set: (_, property, value) => {
-            console.log(`设置变量 ${property} 为 ${value}`)
+            console.log(`Setting variable ${property} to ${value}`)
             if (!USER.getSettings()[target]) {
-                USER.getSettings()[target] = {}; // 初始化，如果不存在
+                USER.getSettings()[target] = {}; // Initialize if not exists
             }
             USER.getSettings()[target][property] = value;
             USER.saveSettings();
