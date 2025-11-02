@@ -38,7 +38,7 @@ const histories = `
 .history-cell-list {
     overflow-y: auto;
     width: 100%;
-    /* 防止内容跳动 */
+    /* Prevent content jumping */
     will-change: transform;
     transform: translateZ(0);
 }
@@ -69,20 +69,20 @@ const histories = `
 </style>
 
 <div class="cell-history">
-    <h3>表格单元格历史记录</h3>
+    <h3>Cell History</h3>
 <!--    <div class="history-tabs">-->
-<!--        &lt;!&ndash; 动态生成tabs &ndash;&gt;-->
+<!--        <!&ndash; Dynamically generated tabs &ndash;>-->
 <!--    </div>-->
     <div class="cell-history-content">
         <div class="history-sheets-content">
-            <!-- 动态生成的单元格历史记录内容 -->
+            <!-- Dynamically generated cell history content -->
         </div>
     </div>
 </div>
 `
 
 function scrollToBottom(container) {
-    // 在弹窗显示后滚动到底部
+    // Scroll to bottom after popup is displayed
     const contentContainer = $(container).find('.cell-history-content');
     contentContainer.scrollTop(contentContainer[0].scrollHeight);
 }
@@ -113,16 +113,16 @@ async function reloadCellHistory(cell, historyCell, container) {
         }
     </style>
     <div class="cell-history">
-        <h3>确认回溯单元格历史记录</h3>
+        <h3>Confirm Cell History Reversion</h3>
         <div class="cell-history-confirm">
             <textarea class="cell-history-confirm-last" readonly>${currentValue}</textarea>
-            <span>修改为:</span>
+            <span>Change to:</span>
             <textarea class="cell-history-confirm-value" rows="8">${targetValue}</textarea>
         </div>
     </div>
-    `, EDITOR.POPUP_TYPE.CONFIRM, '', { wide: true, allowVerticalScrolling: false, okButton: "继续", cancelButton: "取消" });
+    `, EDITOR.POPUP_TYPE.CONFIRM, '', { wide: true, allowVerticalScrolling: false, okButton: "Proceed", cancelButton: "Cancel" });
 
-    // 监听cell-history-confirm-value的输入事件
+    // Listen for input events on cell-history-confirm-value
     const confirmValue = $(tracebackCellHistoryPopup.dlg).find('.cell-history-confirm-value');
     confirmValue.on('input', function () {
         resultValue = $(this).val();
@@ -132,7 +132,7 @@ async function reloadCellHistory(cell, historyCell, container) {
     if (tracebackCellHistoryPopup.result) {
         cell.newAction(Cell.CellAction.editCell, { value: resultValue }, true)
         const targetCell = cell.parent.cellHistory[cell.parent.cellHistory.length - 1]
-        updateCellHistoryData(container, targetCell);  // 更新历史记录
+        updateCellHistoryData(container, targetCell);  // Update history
         scrollToBottom(container);
         BASE.refreshContextView();
     }
@@ -143,7 +143,7 @@ function updateCellHistoryData(container, cell) {
     const sheetsData = BASE.sheetsData.context;
     if (!piece || !piece.hash_sheets) return;
 
-    // 获取内容容器
+    // Get content container
     const contentContainer = $(container).find('.cell-history-content');
 
     const cellHistory = cell.parent.cellHistory
@@ -155,26 +155,26 @@ function updateCellHistoryData(container, cell) {
         }
     });
 
-    // 清空现有内容
+    // Clear existing content
     const sheetsContainer = $(contentContainer).find('.history-sheets-content');
     sheetsContainer.empty();
 
-    // 如果没有历史数据，显示提示
+    // Show message if no history exists
     if (!selfHistory || selfHistory.length === 0) {
-        sheetsContainer.append('<div class="history-empty">此单元格没有历史数据</div>');
+        sheetsContainer.append('<div class="history-empty">This cell has no history</div>');
         return;
     }
 
-    // 创建单元格历史内容区域
+    // Create cell history content area
     const historyContainer = $('<div class="history-sheet-container active"></div>');
     const cellListContainer = $('<div class="history-cell-list"></div>');
 
-    // 遍历历史记录
+    // Iterate through history records
     selfHistory.forEach((historyCell, index) => {
-        // 只显示有值的历史记录
+        // Only show history entries with values
         if (!historyCell.data || !historyCell.data.value) return;
 
-        // 创建历史条目
+        // Create history item
         const historyItem = $('<div class="history-cell-item"></div>');
         const valueElement = $(`<div class="history-cell-value">${historyCell.data.value}</div>`);
         const actionElement = $(`<div class="history-cell-action"></div>`);
@@ -190,7 +190,7 @@ function updateCellHistoryData(container, cell) {
 
         cellListContainer.append(historyItem);
 
-        // 绑定点击事件
+        // Bind click event
         reloadElement.on('click', async () => {
             try {
                 await reloadCellHistory(cell, historyCell, container);
@@ -205,7 +205,7 @@ function updateCellHistoryData(container, cell) {
 }
 
 /**
- * 打开表格编辑历史记录弹窗
+ * Open cell history popup
  * */
 export async function openCellHistoryPopup(cell){
     const cellHistoryPopup = new EDITOR.Popup(histories, EDITOR.POPUP_TYPE.TEXT, '', { large: true, wide: true, allowVerticalScrolling: false });
@@ -214,5 +214,5 @@ export async function openCellHistoryPopup(cell){
     updateCellHistoryData(historyContainer, cell);
 
     cellHistoryPopup.show();
-    scrollToBottom(historyContainer);   // 滚动到底部
+    scrollToBottom(historyContainer);   // Scroll to bottom
 }
