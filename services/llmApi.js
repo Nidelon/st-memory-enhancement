@@ -2,11 +2,11 @@ import {EDITOR, USER} from '../core/manager.js';
 // @ts-ignore
 let ChatCompletionService = undefined;
 try {
-    // 动态导入，兼容模块不存在的情况
+    // Dynamic import to handle cases where the module does not exist
     const module = await import('/scripts/custom-request.js');
     ChatCompletionService = module.ChatCompletionService;
 } catch (e) {
-    console.warn("未检测到 /scripts/custom-request.js 或未正确导出 ChatCompletionService，将禁用代理相关功能。", e);
+    console.warn("Failed to detect /scripts/custom-request.js or ChatCompletionService was not properly exported. Proxy-related features will be disabled.", e);
 }
 export class LLMApiService {
     constructor(config = {}) {
@@ -16,42 +16,42 @@ export class LLMApiService {
             model_name: config.model_name || "gpt-3.5-turbo",
             system_prompt: config.system_prompt || "You are a helpful assistant.",
             temperature: config.temperature || 1.0,
-            max_tokens: config.max_tokens || 63000, // 将默认值从 20000 修改为 63000
+            max_tokens: config.max_tokens || 63000, // Changed default value from 20000 to 63000
             stream: config.stream || false
         };
     }
 
     async callLLM(prompt, streamCallback = null) {
         if (!prompt) {
-            throw new Error("输入内容不能为空");
+            throw new Error("Input content cannot be empty");
         }
 
         if (!this.config.api_url || !this.config.api_key || !this.config.model_name) {
-            throw new Error("API配置不完整");
+            throw new Error("API configuration is incomplete");
         }
 
         let messages;
         if (Array.isArray(prompt)) {
-            // 如果 prompt 是数组，直接作为 messages
+            // If prompt is an array, use it directly as messages
             messages = prompt;
         } else if (typeof prompt === 'string') {
-            // 如果 prompt 是字符串，保持旧逻辑
-            if (prompt.trim().length < 2) throw new Error("输入文本太短");
+            // If prompt is a string, keep the original logic
+            if (prompt.trim().length < 2) throw new Error("Input text is too short");
             messages = [
                 { role: 'system', content: this.config.system_prompt },
                 { role: 'user', content: prompt }
             ];
         } else {
-            throw new Error("无效的输入类型，只接受字符串或消息数组");
+            throw new Error("Invalid input type; only strings or message arrays are accepted");
         }
 
         this.config.stream = streamCallback !== null;
 
-        // 如果配置了代理地址，则使用 SillyTavern 的内部路由
+        // If a proxy address is configured, use SillyTavern's internal routing
         if (USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_address) {
-            console.log("检测到代理配置，将使用 SillyTavern 内部路由");
+            console.log("Proxy configuration detected; using SillyTavern internal routing");
             if (typeof ChatCompletionService === 'undefined' || !ChatCompletionService?.processRequest) {
-                const errorMessage = "当前酒馆版本过低，无法发送自定义请求。请更新你的酒馆版本";
+                const errorMessage = "Your tavern version is outdated and cannot send custom requests. Please update your tavern version";
                 EDITOR.error(errorMessage);
                 throw new Error(errorMessage);
             }
@@ -62,7 +62,7 @@ export class LLMApiService {
                     max_tokens: this.config.max_tokens,
                     model: this.config.model_name,
                     temperature: this.config.temperature,
-                    chat_completion_source: 'openai', // 假设代理目标是 OpenAI 兼容的
+                    chat_completion_source: 'openai', // Assume the proxy target is OpenAI-compatible
                     custom_url: this.config.api_url,
                     reverse_proxy: USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_address,
                     proxy_password: USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_key || null,
@@ -70,7 +70,7 @@ export class LLMApiService {
 
                 if (this.config.stream) {
                     if (!streamCallback || typeof streamCallback !== 'function') {
-                        throw new Error("流式模式下必须提供有效的streamCallback函数");
+                        throw new Error("A valid streamCallback function must be provided in streaming mode");
                     }
                     const streamGenerator = await ChatCompletionService.processRequest(requestData, {}, false); // extractData = false for stream
                     let fullResponse = '';
@@ -84,17 +84,17 @@ export class LLMApiService {
                 } else {
                     const responseData = await ChatCompletionService.processRequest(requestData, {}, true); // extractData = true for non-stream
                     if (!responseData || !responseData.content) {
-                        throw new Error("通过内部路由获取响应失败或响应内容为空");
+                        throw new Error("Failed to obtain response via internal routing or response content is empty");
                     }
                     return this.#cleanResponse(responseData.content);
                 }
             } catch (error) {
-                console.error("通过 SillyTavern 内部路由调用 LLM API 错误:", error);
+                console.error("Error calling LLM API via SillyTavern internal routing:", error);
                 throw error;
             }
         } else {
-            // 未配置代理，使用原始的直接 fetch 逻辑
-            console.log("未检测到代理配置，将使用直接 fetch");
+            // No proxy configured; use the original direct fetch logic
+            console.log("No proxy configuration detected; using direct fetch");
             let apiEndpoint = this.config.api_url;
             if (!apiEndpoint.endsWith("/chat/completions")) {
                 apiEndpoint += "/chat/completions";
@@ -116,14 +116,14 @@ export class LLMApiService {
             try {
                 if (this.config.stream) {
                     if (!streamCallback || typeof streamCallback !== 'function') {
-                        throw new Error("流式模式下必须提供有效的streamCallback函数");
+                        throw new Error("A valid streamCallback function must be provided in streaming mode");
                     }
                     return await this.#handleStreamResponse(apiEndpoint, headers, data, streamCallback);
                 } else {
                     return await this.#handleRegularResponse(apiEndpoint, headers, data);
                 }
             } catch (error) {
-                console.error("直接调用 LLM API 错误:", error);
+                console.error("Error calling LLM API directly:", error);
                 throw error;
             }
         }
@@ -138,14 +138,14 @@ export class LLMApiService {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+            throw new Error(`API request failed: ${response.status} - ${errorText}`);
         }
 
         const responseData = await response.json();
 
         if (!responseData.choices || responseData.choices.length === 0 ||
             !responseData.choices[0].message || !responseData.choices[0].message.content) {
-            throw new Error("API返回无效的响应结构");
+            throw new Error("API returned an invalid response structure");
         }
 
         let translatedText = responseData.choices[0].message.content;
@@ -161,11 +161,11 @@ export class LLMApiService {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(`API请求失败: ${response.status} - ${errorText}`);
+            throw new Error(`API request failed: ${response.status} - ${errorText}`);
         }
 
         if (!response.body) {
-            throw new Error("无法获取响应流");
+            throw new Error("Unable to access response stream");
         }
 
         const reader = response.body.getReader();
@@ -270,7 +270,7 @@ export class LLMApiService {
     }
 
     #cleanResponse(text) {
-        // 清理响应文本，移除可能的前缀或后缀
+        // Clean response text by removing possible prefixes or suffixes
         return text.trim();
     }
 
@@ -281,34 +281,34 @@ export class LLMApiService {
             { role: 'user', content: testPrompt }
         ];
 
-        // 如果配置了代理地址，则使用 SillyTavern 的内部路由进行测试
+        // If a proxy address is configured, use SillyTavern's internal routing for testing
         if (USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_address) {
-            console.log("检测到代理配置，将使用 SillyTavern 内部路由进行连接测试");
+            console.log("Proxy configuration detected; using SillyTavern internal routing for connection test");
             try {
                 const requestData = {
-                    stream: false, // 测试连接不需要流式
+                    stream: false, // Streaming not needed for connection test
                     messages: messages,
-                    max_tokens: 50, // 测试连接不需要太多 token
+                    max_tokens: 50, // Connection test doesn't require many tokens
                     model: this.config.model_name,
                     temperature: this.config.temperature,
-                    chat_completion_source: 'openai', // 假设代理目标是 OpenAI 兼容的
+                    chat_completion_source: 'openai', // Assume the proxy target is OpenAI-compatible
                     custom_url: this.config.api_url,
                     reverse_proxy: USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_address,
                     proxy_password: USER.IMPORTANT_USER_PRIVACY_DATA.table_proxy_key || null,
                 };
-                // 使用 processRequest 进行非流式请求测试
+                // Use processRequest for non-streaming request test
                 const responseData = await ChatCompletionService.processRequest(requestData, {}, true);
                 if (!responseData || !responseData.content) {
-                    throw new Error("通过内部路由测试连接失败或响应内容为空");
+                    throw new Error("Connection test via internal routing failed or response content is empty");
                 }
-                return responseData.content; // 返回响应内容表示成功
+                return responseData.content; // Return response content to indicate success
             } catch (error) {
-                console.error("通过 SillyTavern 内部路由测试 API 连接错误:", error);
+                console.error("Error testing API connection via SillyTavern internal routing:", error);
                 throw error;
             }
         } else {
-            // 未配置代理，使用原始的直接 fetch 逻辑进行测试
-            console.log("未检测到代理配置，将使用直接 fetch 进行连接测试");
+            // No proxy configured; use original direct fetch logic for testing
+            console.log("No proxy configuration detected; using direct fetch for connection test");
             let apiEndpoint = this.config.api_url;
             if (!apiEndpoint.endsWith("/chat/completions")) {
                 apiEndpoint += "/chat/completions";
@@ -323,7 +323,7 @@ export class LLMApiService {
                 model: this.config.model_name,
                 messages: messages,
                 temperature: this.config.temperature,
-                max_tokens: 50, // 测试连接不需要太多 token
+                max_tokens: 50, // Connection test doesn't require many tokens
                 stream: false
             };
 
@@ -336,17 +336,17 @@ export class LLMApiService {
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`API测试请求失败: ${response.status} - ${errorText}`);
+                    throw new Error(`API test request failed: ${response.status} - ${errorText}`);
                 }
 
                 const responseData = await response.json();
-                // 检查响应是否有效
+                // Validate response structure
                 if (!responseData.choices || responseData.choices.length === 0 || !responseData.choices[0].message || !responseData.choices[0].message.content) {
-                    throw new Error("API测试返回无效的响应结构");
+                    throw new Error("API test returned an invalid response structure");
                 }
-                return responseData.choices[0].message.content; // 返回响应内容表示成功
+                return responseData.choices[0].message.content; // Return response content to indicate success
             } catch (error) {
-                console.error("直接 fetch 测试 API 连接错误:", error);
+                console.error("Error testing API connection via direct fetch:", error);
                 throw error;
             }
         }
