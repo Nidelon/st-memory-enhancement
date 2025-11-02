@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>恋爱冒险地图</title>
+    <title>Romance Adventure Map</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=ZCOOL+XiaoWei&family=ZCOOL+QingKe+HuangYou&display=swap" rel="stylesheet">
     <style>
@@ -61,12 +61,12 @@
             <h2 id="map-title"></h2>
             <div class="header-info"><span id="map-time"></span></div>
              <div class="top-right-buttons">
-                <button class="partner-button" id="shop-button"><i class="fas fa-store"></i> 商店</button>
-                <button class="partner-button" id="inventory-button"><i class="fas fa-briefcase"></i> 背包</button>
+                <button class="partner-button" id="shop-button"><i class="fas fa-store"></i> Shop</button>
+                <button class="partner-button" id="inventory-button"><i class="fas fa-briefcase"></i> Inventory</button>
             </div>
         </div>
         <div id="current-important-characters" class="current-partners-section hidden">
-             <div class="section-title"><i class="fas fa-star"></i> 当前地图重要人物</div>
+             <div class="section-title"><i class="fas fa-star"></i> Important Characters on Current Map</div>
              <div id="important-character-buttons" class="partner-button-list"></div>
         </div>
         <div id="visual-map-container"><svg id="visual-map" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg"></svg></div>
@@ -75,7 +75,7 @@
             <div class="detail-header"><i class="fas fa-map-marker-alt"></i> <span id="selected-location"></span></div>
             <div class="detail-content">
                 <div class="character-section">
-                    <div class="section-title"><i class="fas fa-users"></i> 可能遇见的人</div>
+                    <div class="section-title"><i class="fas fa-users"></i> People You Might Encounter</div>
                     <div id="location-characters" class="character-list"></div>
                 </div>
             </div>
@@ -93,14 +93,14 @@
     <div id="shop-modal" class="modal-overlay hidden">
         <div class="shop-modal-dialog">
             <button id="close-shop-btn" class="close-modal-button">&times;</button>
-            <h4><i class="fas fa-store"></i> 商店</h4>
+            <h4><i class="fas fa-store"></i> Shop</h4>
             <div id="shop-items-container"></div>
         </div>
     </div>
     <div id="inventory-modal" class="modal-overlay hidden">
         <div class="inventory-modal-dialog">
             <button id="close-inventory-btn" class="close-modal-button">&times;</button>
-            <h4><i class="fas fa-briefcase"></i> 背包</h4>
+            <h4><i class="fas fa-briefcase"></i> Inventory</h4>
             <div id="inventory-items-container"></div>
         </div>
     </div>
@@ -110,35 +110,35 @@
         let mapData = null, selectedMain = null, selectedSub = null;
         function processJsonData(json) {
             const data = { title: '', time: '', locations: [], importantCharacters: [], roads: [], currentUserPosition: {}, shop: [], inventory: [] };
-            const globalSheetUid = Object.keys(json).find(key => json[key].name === '全局数据表');
+            const globalSheetUid = Object.keys(json).find(key => json[key].name === 'Global Data Sheet');
             const global = json[globalSheetUid].content[1];
             data.title = global[1];
             data.time = global[2];
             data.currentUserPosition = { x: parseInt(global[5]), y: parseInt(global[6]) };
 
-            const protagonistSheetUid = Object.keys(json).find(key => json[key].name === '主角信息');
+            const protagonistSheetUid = Object.keys(json).find(key => json[key].name === 'Protagonist Info');
             const protagonist = json[protagonistSheetUid].content[1];
             data.importantCharacters.push({ name: protagonist[1], description: protagonist[2], interactions: [protagonist[4], protagonist[5], protagonist[6], protagonist[7]] });
             
-            const importantCharacterSheetUid = Object.keys(json).find(key => json[key].name === '重要人物表');
+            const importantCharacterSheetUid = Object.keys(json).find(key => json[key].name === 'Important Characters Sheet');
             json[importantCharacterSheetUid].content.slice(1).forEach(row => {
                 data.importantCharacters.push({ name: row[1], description: row[2], interactions: [row[5], row[6], row[7], row[8]] });
             });
-            const shopSheetUid = Object.keys(json).find(key => json[key].name === '商店物品表');
+            const shopSheetUid = Object.keys(json).find(key => json[key].name === 'Shop Items Sheet');
             json[shopSheetUid].content.slice(1).forEach(row => data.shop.push({ name: row[1], price: parseInt(row[2]), description: row[3] }));
             
-            const inventorySheetUid = Object.keys(json).find(key => json[key].name === '背包物品表');
+            const inventorySheetUid = Object.keys(json).find(key => json[key].name === 'Inventory Items Sheet');
             json[inventorySheetUid].content.slice(1).forEach(row => data.inventory.push({ name: row[1], description: row[2] }));
 
             const subLocationsMap = new Map();
-            const subLocationSheetUid = Object.keys(json).find(key => json[key].name === '次级地点表');
+            const subLocationSheetUid = Object.keys(json).find(key => json[key].name === 'Sub-Locations Sheet');
             json[subLocationSheetUid].content.slice(1).forEach(row => {
                 const subName = row[1], mainName = row[2];
                 if (!subLocationsMap.has(mainName)) subLocationsMap.set(mainName, []);
                 subLocationsMap.get(mainName).push({ name: subName, characters: [] });
             });
             
-            const mapElementSheetUid = Object.keys(json).find(key => json[key].name === '地图元素表');
+            const mapElementSheetUid = Object.keys(json).find(key => json[key].name === 'Map Elements Sheet');
             json[mapElementSheetUid].content.slice(1).forEach(row => {
                 const char = { name: row[1], description: row[2], interactions: [row[4], row[5], row[6], row[7]] };
                 for (let subs of subLocationsMap.values()) {
@@ -147,13 +147,13 @@
                 }
             });
 
-            const mainLocationSheetUid = Object.keys(json).find(key => json[key].name === '主要地点表');
+            const mainLocationSheetUid = Object.keys(json).find(key => json[key].name === 'Main Locations Sheet');
             json[mainLocationSheetUid].content.slice(1).forEach(row => {
                 const name = row[1];
                 data.locations.push({ name, x: parseInt(row[2]), y: parseInt(row[3]), width: parseInt(row[4]), height: parseInt(row[5]), subLocations: subLocationsMap.get(name) || [] });
             });
             
-            const roadSheetUid = Object.keys(json).find(key => json[key].name === '道路表');
+            const roadSheetUid = Object.keys(json).find(key => json[key].name === 'Roads Sheet');
             json[roadSheetUid].content.slice(1).forEach(row => {
                 data.roads.push({ points: row[1].replace(/\//g, ',').replace(/;/g, ' '), width: parseInt(row[2]), color: row[3] });
             });
@@ -204,24 +204,24 @@
         function displayShopItems(items){
             const container = document.getElementById('shop-items-container');
             container.innerHTML = '';
-            if(!items || items.length === 0) { container.innerHTML = "<p>商店里什么都没有.</p>"; return; }
+            if(!items || items.length === 0) { container.innerHTML = "<p>The shop is empty.</p>"; return; }
             items.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'shop-item';
                 el.innerHTML = `<div>${item.name} - ${item.description}</div><div>${item.price}G</div>`;
-                el.addEventListener('click', ()=> alert(`购买 ${item.name}`));
+                el.addEventListener('click', ()=> alert(`Purchased ${item.name}`));
                 container.appendChild(el);
             });
         }
          function displayInventoryItems(items){
             const container = document.getElementById('inventory-items-container');
             container.innerHTML = '';
-            if(!items || items.length === 0) { container.innerHTML = "<p>你的背包是空的.</p>"; return; }
+            if(!items || items.length === 0) { container.innerHTML = "<p>Your inventory is empty.</p>"; return; }
             items.forEach(item => {
                 const el = document.createElement('div');
                 el.className = 'inventory-item';
                 el.innerHTML = `<div>${item.name} - ${item.description}</div>`;
-                el.addEventListener('click', ()=> alert(`使用 ${item.name}`));
+                el.addEventListener('click', ()=> alert(`Used ${item.name}`));
                 container.appendChild(el);
             });
         }
@@ -258,7 +258,7 @@
                     btn.addEventListener('click', () => selectCharacter(char));
                     charContainer.appendChild(btn);
                 });
-            } else { charContainer.innerHTML = '<p>这里没有人</p>'; }
+            } else { charContainer.innerHTML = '<p>No one is here.</p>'; }
             document.getElementById('location-details').classList.remove('hidden');
         }
 
@@ -273,7 +273,7 @@
                 const btn = document.createElement('button');
                 btn.className = 'interaction-button';
                 btn.textContent = opt;
-                btn.addEventListener('click', () => { alert(`选择了: ${opt}`); modal.classList.add('hidden'); });
+                btn.addEventListener('click', () => { alert(`Selected: ${opt}`); modal.classList.add('hidden'); });
                 optionsContainer.appendChild(btn);
             });
             modal.classList.remove('hidden');
