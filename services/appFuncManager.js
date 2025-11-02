@@ -61,9 +61,9 @@ const applicationFunctionManager = {
             const { doNavbarIconClick } = await import('/script.js');
             this.doNavbarIconClick = doNavbarIconClick || null;
         } catch (error) {
-            console.warn('无法导入 doNavbarIconClick:', error);
+            console.warn('Unable to import doNavbarIconClick:', error);
             this.doNavbarIconClick = () => {
-                console.warn('doNavbarIconClick 不可用');
+                console.warn('doNavbarIconClick Unavailable');
             };
         }
     }
