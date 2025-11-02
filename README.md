@@ -1,4 +1,5 @@
 <div align="center">
+<h1>I just decided to do a full translation into English. I have no idea how stable everything is. I tried it, it seems to work.<h1>
 <h1>✨ SillyTavern Memory Enhancement Plugin ✨</h1>
 
 <p>
