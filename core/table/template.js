@@ -6,20 +6,20 @@ export class SheetTemplate extends SheetBase {
     constructor(target = null) {
         super();
         this.domain = SheetBase.SheetDomain.global
-        this.currentPopupMenu = null;           // 用于跟踪当前弹出的菜单 - 移动到 Sheet (如果需要PopupMenu仍然在Sheet中管理)
-        this.element = null;                    // 用于存储渲染后的 table 元素
-        this.lastCellEventHandler = null;       // 保存最后一次使用的 cellEventHandler
+        this.currentPopupMenu = null;           // Used to track the currently popped-up menu – moved to Sheet (if PopupMenu still needs to be managed within Sheet)
+        this.element = null;                    // Used to store the rendered table element
+        this.lastCellEventHandler = null;       // Stores the last used cellEventHandler
 
         this.#load(target);
     }
 
     /**
-     * 渲染表格
-     * @description 接受 cellEventHandler 参数，提供一个 `Cell` 对象作为回调函数参数，用于处理单元格事件
-     * @description 可以通过 `cell.parent` 获取 Sheet 对象，因此不再需要传递 Sheet 对象
-     * @description 如果不传递 cellEventHandler 参数，则使用上一次的 cellEventHandler
+     * Render the table
+     * @description Accepts a cellEventHandler parameter, which provides a `Cell` object as a callback argument for handling cell events
+     * @description The Sheet object can be accessed via `cell.parent`, so passing the Sheet object explicitly is no longer needed
+     * @description If no cellEventHandler is provided, the previously used cellEventHandler will be reused
      * @param {Function} cellEventHandler
-     * */
+     */
     renderSheet(cellEventHandler = this.lastCellEventHandler) {
         this.lastCellEventHandler = cellEventHandler;
 
@@ -37,43 +37,43 @@ export class SheetTemplate extends SheetBase {
             this.element.appendChild(styleElement);
         }
 
-        // 确保 element 中有 tbody，没有则创建
+        // Ensure the element contains a tbody; create one if it doesn't exist
         let tbody = this.element.querySelector('tbody');
         if (!tbody) {
             tbody = document.createElement('tbody');
             this.element.appendChild(tbody);
         }
-        // 清空 tbody 的内容
+        // Clear tbody contents
         tbody.innerHTML = '';
 
-        // 遍历 hashSheet，渲染每一个单元格
+        // Iterate over hashSheet and render each cell
         this.hashSheet.forEach((rowUids, rowIndex) => {
             if (rowIndex > 0) return;
             const rowElement = document.createElement('tr');
             rowUids.forEach((cellUid, colIndex) => {
                 const cell = this.cells.get(cellUid)
                 const cellElement = cell.initCellRender(rowIndex, colIndex);
-                rowElement.appendChild(cellElement);    // 调用 Cell 的 initCellRender 方法，仍然需要传递 rowIndex, colIndex 用于渲染单元格内容
+                rowElement.appendChild(cellElement);    // Call Cell's initCellRender method; rowIndex and colIndex are still required for rendering cell content
                 if (cellEventHandler) {
                     cellEventHandler(cell);
                 }
             });
-            tbody.appendChild(rowElement); // 将 rowElement 添加到 tbody 中
+            tbody.appendChild(rowElement); // Append rowElement to tbody
         });
         return this.element;
     }
 
     createNewTemplate(column = 2, row = 2, isSave = true) {
-        this.init(column, row); // 初始化基本数据结构
+        this.init(column, row); // Initialize basic data structure
         this.uid = `template_${SYSTEM.generateRandomString(8)}`;
-        this.name = `新模板_${this.uid.slice(-4)}`;
+        this.name = `NewTemplate_${this.uid.slice(-4)}`;
         this.loadCells();
-        isSave && this.save(); // 保存新创建的 Sheet
-        return this; // 返回 Sheet 实例自身
+        isSave && this.save(); // Save the newly created Sheet
+        return this; // Return the Sheet instance itself
     }
 
     /**
-     * 保存表格数据
+     * Save sheet data
      * @returns {SheetTemplate}
      */
     save(manualSave = false) {
@@ -86,17 +86,17 @@ export class SheetTemplate extends SheetBase {
             } else {
                 templates.push(sheetDataToSave);
             }
-            console.log("保存模板数据", templates)
+            console.log("Saving template data", templates)
             USER.getSettings().table_database_templates = templates;
             if(!manualSave) USER.saveSettings();
             return this;
         } catch (e) {
-            EDITOR.error(`保存模板失败`, e.message, e);
+            EDITOR.error(`Failed to save template`, e.message, e);
             return null;
         }
     }
     /**
-     * 删除表格数据，根据 domain 决定删除的位置
+     * Delete sheet data; deletion location is determined by domain
      * @returns {*}
      */
     delete() {
@@ -106,15 +106,15 @@ export class SheetTemplate extends SheetBase {
         return templates;
     }
 
-    /** _______________________________________ 以下函数不进行外部调用 _______________________________________ */
+    /** _______________________________________ The following functions are not intended for external use _______________________________________ */
 
     #load(target) {
         if (target === null) {
-            // 创建一个新的空 Sheet
+            // Create a new empty Sheet
             this.init();
             return this;
         }
-        // 从模板库中加载
+        // Load from template library
         let targetUid = target?.uid || target;
         let targetSheetData = BASE.templates?.find(t => t.uid === targetUid);
         if (targetSheetData?.uid) {
@@ -124,18 +124,18 @@ export class SheetTemplate extends SheetBase {
             return this;
         }
 
-        throw new Error('未找到对应的模板');
+        throw new Error('Corresponding template not found');
         // if (target instanceof Sheet) {
-        //     // 从 Sheet 实例模板化
+        //     // Template from a Sheet instance
         //     this.uid = `template_${SYSTEM.generateRandomString(8)}`;
-        //     this.name = target.name.replace('表格', '模板');
+        //     this.name = target.name.replace('Sheet', 'Template');
         //     this.hashSheet = [target.hashSheet[0]];
         //     this.cellHistory = target.cellHistory.filter(c => this.hashSheet[0].includes(c.uid));
         //     this.loadCells();
         //     this.markPositionCacheDirty();
         //     return this;
         // } else {
-        //     // 从模板库中加载
+        //     // Load from template library
         //     let targetUid = target?.uid || target;
         //     let targetSheetData = BASE.templates?.find(t => t.uid === targetUid);
         //     if (targetSheetData?.uid) {
@@ -145,7 +145,7 @@ export class SheetTemplate extends SheetBase {
         //         return this;
         //     }
         //
-        //     throw new Error('未找到对应的模板');
+        //     throw new Error('Corresponding template not found');
         // }
     }
 
