@@ -1,9 +1,7 @@
 import applicationFunctionManager from "./appFuncManager.js";
 
-/**
- * Asynchronously fetch English translation file
- * @returns {Promise<Object>} - Translation object
- */
+let _translations = null;
+
 async function fetchTranslations() {
     try {
         const response = await fetch('/scripts/extensions/third-party/st-memory-enhancement/assets/locales/en.json');
@@ -14,12 +12,7 @@ async function fetchTranslations() {
     }
 }
 
-/**
- * Apply translations to DOM elements
- * @param {Object} translations - Translation object
- */
 function applyTranslations(translations) {
-    // Translate elements with data-i18n attribute
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[key]) {
@@ -31,7 +24,6 @@ function applyTranslations(translations) {
         }
     });
 
-    // Translate specific elements by selector
     const selectorTranslations = {
         '#table_clear_up a': 'Reorganize tables now',
         '#dataTable_to_chat_button a': 'Edit style of tables rendered in conversation'
@@ -46,17 +38,26 @@ function applyTranslations(translations) {
     }
 }
 
-/**
- * Main function to load English translations and apply them to the DOM
- */
-export async function executeTranslation() {
-    const translations = await fetchTranslations();
+async function getTranslations() {
+    if (_translations) return _translations;
+    _translations = await fetchTranslations();
+    return _translations;
+}
 
+export async function executeTranslation() {
+    const translations = await getTranslations();
     if (Object.keys(translations).length === 0) {
         console.warn("No English translations loaded.");
         return;
     }
-
     applyTranslations(translations);
     console.log("English translation applied.");
+}
+
+export async function translating(targetScope, source) {
+    return source;
+}
+
+export async function switchLanguage(targetScope, source) {
+    return source;
 }
