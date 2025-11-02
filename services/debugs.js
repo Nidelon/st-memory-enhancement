@@ -1,22 +1,22 @@
 import { SYSTEM, USER} from "../core/manager.js";
 
-// /**______________________请注意不要把填写后的API密钥上传了______________________*/
+// /**______________________Please do not upload your API key after filling it in______________________*/
 // /**
-//  * 仅用于测试，请注意不要把填写后的API密钥上传了
+//  * For testing only. Please do not upload your API key after filling it in.
 //  * @type {{model_name: string, api_url: string, api_key: string, max_tokens: number, temperature: number, system_prompt: string}}
 //  */
 // const testConfig = {
 //     api_url: "",
 //     api_key: "",
 //     model_name: "gemini-2.0-flash",
-//     system_prompt: "你是一个专业的翻译助手",
+//     system_prompt: "You are a professional translation assistant",
 //     temperature: 0.7,
 //     max_tokens: 2000,
 // };
 
 export async function rollbackVersion() {
-    // 弹出确认
-    if (confirm("初始化2.0表格数据？该操作无法回退！（将销毁当前对话的所有新表数据，清空所有新表格模板，用于模拟回退上一版本，该功能仅用于调试。）")) {
+    // Show confirmation dialog
+    if (confirm("Initialize version 2.0 table data? This action cannot be undone! (It will destroy all new table data in the current conversation, clear all new table templates, and simulate a rollback to the previous version. This feature is for debugging only.)")) {
         USER.tableBaseSetting.updateIndex = 3
         delete USER.getSettings().table_database_templates
         delete USER.getContext().chatMetadata.sheets
@@ -32,72 +32,72 @@ export async function rollbackVersion() {
 
         USER.saveSettings()
         USER.saveChat();
-        console.log("已清除表格数据: ", USER.getSettings(), USER.getContext().chatMetadata, USER.getChatPiece())
+        console.log("Table data cleared: ", USER.getSettings(), USER.getContext().chatMetadata, USER.getChatPiece())
         return true
     } else {
-        console.log("用户取消了清除操作")
+        console.log("User canceled the clear operation")
         return false
     }
 }
 
-/**______________________请注意不要把填写后的API密钥上传了______________________*/
+/**______________________Please do not upload your API key after filling it in______________________*/
 export function functionToBeRegistered() {
-    SYSTEM.f(rollbackVersion, "回退上一版本")
+    SYSTEM.f(rollbackVersion, "Roll back to previous version")
     // SYSTEM.f(()=>{
     //     let sourceData = {}
     //     const s = BASE.sheetsData.context
     //     console.log(s, s[0])
     //     console.log(s[0].cellHistory[0])
     //     console.log(s[0].cellHistory[0].data.description)
-    // }, "打印表格源")
+    // }, "Print table source")
     // SYSTEM.f(()=>{
-    //     EDITOR.info("测试信息")
-    // }, "测试信息")
+    //     EDITOR.info("Test info")
+    // }, "Test info")
     // SYSTEM.f(async ()=>{
     //     EDITOR.confirm(
-    //         '执行操作?',
-    //         '取消',
-    //         '确认'
+    //         'Execute action?',
+    //         'Cancel',
+    //         'Confirm'
     //     ).then((r)=>{
     //         console.log(r)
     //     })
-    // }, "测试confirm")
-    // // 测试非流式API调用
+    // }, "Test confirm")
+    // // Test non-streaming API call
     // SYSTEM.f(async () => {
     //     const llmService = new LLMApiService(testConfig);
     //
     //     try {
-    //         console.log("正在测试 API 连接(非流式模式)...");
+    //         console.log("Testing API connection (non-streaming mode)...");
     //
-    //         // 测试连接
+    //         // Test connection
     //         const testResponse = await llmService.testConnection();
-    //         console.log("API 连接测试成功(非流式模式)!", testResponse);
+    //         console.log("API connection test successful (non-streaming mode)!", testResponse);
     //
-    //         // 测试翻译
-    //         console.log("正在测试翻译功能(非流式模式)...");
+    //         // Test translation
+    //         console.log("Testing translation functionality (non-streaming mode)...");
     //         const testText = "This is a test sentence to check if the translation service is working properly.";
     //         const translation = await llmService.callLLM(testText);
     //
-    //         console.log(`翻译测试成功(非流式模式)! 原文: ${testText}, 译文: ${translation}`);
+    //         console.log(`Translation test successful (non-streaming mode)! Original: ${testText}, Translation: ${translation}`);
     //     } catch (error) {
-    //         console.log("API 测试失败(非流式模式):", error.message);
+    //         console.log("API test failed (non-streaming mode):", error.message);
     //         console.error(error);
     //     }
-    // }, "llmApi非流式");
+    // }, "llmApi non-streaming");
     //
-    // // 测试流式API调用
+    // // Test streaming API call
     // SYSTEM.f(async () => {
     //     const llmService = new LLMApiService(testConfig);
     //
     //     try {
-    //         console.log("正在测试 API 连接(流式模式)...");
+    //         console.log("Testing API connection (streaming mode)...");
     //
-    //         // 测试连接(流式模式下仍然使用非流式测试)
+    //         // Test connection (still using non-streaming test in streaming mode)
     //         const testResponse = await llmService.testConnection();
-    //         console.log("API 连接测试成功(流式模式)!", testResponse);
+    //         console.log("API connection test successful (streaming mode)!", testResponse);
     //
-    //         // 测试翻译(流式模式)
-    //         console.log("正在测试翻译功能(流式模式)...");
+    //         // Test translation (streaming mode)
+    //         console.log("Testing translation functionality (streaming mode)...");
     //         const testText = "Abstract. Most 3D Gaussian Splatting (3D-GS) based methods for urban\n" +
     //             "scenes initialize 3D Gaussians directly with 3D LiDAR points, which\n" +
     //             "not only underutilizes LiDAR data capabilities but also overlooks the\n" +
@@ -115,32 +115,32 @@ export function functionToBeRegistered() {
     //             "Gaussian Splatting optimization process, the 3D mesh offers dense depth\n" +
     //             "information as supervision, which enhances the training process by learning\n" +
     //             "of a robust geometry. Comprehensive evaluations conducted on the\n" +
-    //             "Waymo Open Dataset and nuScenes Dataset validate our method’s stateof-\n" +
+    //             "Waymo Open Dataset and nuScenes Dataset validate our method’s state-of-\n" +
     //             "the-art (SOTA) performance. Utilizing a single NVIDIA RTX 3090 Ti,\n" +
     //             "our method demonstrates fast training and achieves real-time RGB and\n" +
     //             "depth rendering at 90 FPS in resolution of 1920×1280 (Waymo), and\n" +
     //             "120 FPS in resolution of 1600×900 (nuScenes) in urban scenarios.";
     //
-    //         // 流式回调函数
+    //         // Streaming callback function
     //         let fullResponse = "";
     //         const streamCallback = (chunk) => {
     //             fullResponse += chunk;
     //             console.log(fullResponse);
     //         };
     //
-    //         console.log("开始流式传输...");
+    //         console.log("Starting streaming...");
     //         const translation = await llmService.callLLM(testText, streamCallback);
     //
-    //         console.log("\n流式传输完成!");
-    //         console.log(`完整译文: ${translation}`);
+    //         console.log("\nStreaming completed!");
+    //         console.log(`Full translation: ${translation}`);
     //     } catch (error) {
-    //         console.log("API 测试失败(流式模式):", error.message);
+    //         console.log("API test failed (streaming mode):", error.message);
     //         console.error(error);
     //     }
-    // }, "llmApi流式");
+    // }, "llmApi streaming");
     //
-    // // 测试流式API调用
+    // // Test streaming API call
     // SYSTEM.f(async () => {
     //     console.log(getRequestHeaders())
-    // }, "secrets测试");
+    // }, "secrets test");
 }
