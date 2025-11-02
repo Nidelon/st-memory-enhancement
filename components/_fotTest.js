@@ -5,13 +5,13 @@ const TESTING = true;
 
 let codeQueue = [];
 /**
- * 将代码添加到测试队列。
- * @param {Function} code 测试函数
- * @param {string} [functionName] 函数的名称，可选
+ * Adds code to the test queue.
+ * @param {Function} code Test function
+ * @param {string} [functionName] Function name, optional
  */
 export function pushCodeToQueue(code, functionName) {
     codeQueue.push({ func: code, name: functionName });
-    if (testTestSidebarEnabled && testSidebarContainer) { // 修复变量名
+    if (testTestSidebarEnabled && testSidebarContainer) { // Fixed variable name
         appendTestFunctionButton(testSidebarContainer, codeQueue[codeQueue.length - 1], codeQueue.length - 1);
     }
 }
@@ -21,7 +21,7 @@ export function initTest() {
     if (!testTestSidebarEnabled) openTestSidebar();
 }
 
-let testTestSidebarEnabled = false; // 保留原始变量名
+let testTestSidebarEnabled = false; // Keep original variable name
 let testSidebarContainer = null;
 let isDragging = false;
 let offsetX, offsetY;
@@ -41,7 +41,7 @@ function openTestSidebar() {
 
 async function testingProcess() {
     if (codeQueue.length === 0) {
-        console.log(`[${new Date().toLocaleTimeString()}] 没有注册任何 code，无法执行，请使用 SYSTEM.f(()=>{需要测试的代码}, '函数名') 注册测试代码。`);
+        console.log(`[${new Date().toLocaleTimeString()}] No code registered; cannot execute. Please register test code using SYSTEM.f(()=>{code to test}, 'function name').`);
         return;
     }
 
@@ -50,21 +50,21 @@ async function testingProcess() {
     console.log(`%c[${new Date().toLocaleTimeString()}] START [SYSTEM.f()...`, 'color: blue; font-weight: bold');
     for (const codeObject of codeQueue) {
         const func = codeObject.func;
-        const functionName = codeObject.name; // 获取函数名
+        const functionName = codeObject.name; // Get function name
         const startTimeI = performance.now();
         const index = codeQueue.indexOf(codeObject);
         try {
             await func();
-            console.log(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} END (用时: ${(performance.now() - startTimeI).toFixed(2)}ms)`, 'color: green'); // 保留函数名输出和时间
+            console.log(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} END (Time: ${(performance.now() - startTimeI).toFixed(2)}ms)`, 'color: green'); // Keep function name and timing output
         } catch (error) {
-            console.error(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} ERROR:`, 'color: red; font-weight: bold', error); // 保留函数名输出
+            console.error(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} ERROR:`, 'color: red; font-weight: bold', error); // Keep function name output
         }
     }
 
     const endTime = performance.now();
     const elapsedTime = endTime - startTime;
 
-    console.log(`%c[${new Date().toLocaleTimeString()}] SYSTEM.f()] END (总用时: ${elapsedTime.toFixed(2)}ms)`, 'color: green; font-weight: bold');
+    console.log(`%c[${new Date().toLocaleTimeString()}] SYSTEM.f()] END (Total time: ${elapsedTime.toFixed(2)}ms)`, 'color: green; font-weight: bold');
 }
 
 function createSidebarContainer() {
@@ -104,9 +104,9 @@ function createToolBar() {
         borderBottom: '1px solid #555'
     });
 
-    const retryButton = createToolButton('<i class="fa-solid fa-repeat"></i>', async (event) => { // 使用 Font Awesome 图标, 并添加隐藏的文字
+    const retryButton = createToolButton('<i class="fa-solid fa-repeat"></i>', async (event) => { // Use Font Awesome icon, and add hidden text
         event.stopPropagation();
-        if (confirm('将依次执行测试队列中注册的的代码，是否继续？')) {
+        if (confirm('This will sequentially execute all code registered in the test queue. Continue?')) {
             await reloadTestContent();
         } else {
 
@@ -114,7 +114,7 @@ function createToolBar() {
     });
     toolBar.appendChild(retryButton);
 
-    const logButton = createToolButton('<i class="fa-solid fa-database"></i>', (event) => { // 使用 Font Awesome 图标, 并添加隐藏的文字
+    const logButton = createToolButton('<i class="fa-solid fa-database"></i>', (event) => { // Use Font Awesome icon, and add hidden text
         event.stopPropagation();
         EDITOR.logAll();
     });
@@ -123,9 +123,9 @@ function createToolBar() {
     return toolBar;
 }
 
-function createToolButton(innerHTML, onClickHandler) { // 修改 text 参数为 innerHTML
+function createToolButton(innerHTML, onClickHandler) { // Changed parameter from 'text' to 'innerHTML'
     const button = document.createElement('button');
-    button.innerHTML = innerHTML; // 使用 innerHTML
+    button.innerHTML = innerHTML; // Use innerHTML
     Object.assign(button.style, {
         background: 'none',
         border: '2px solid #a00',
@@ -135,23 +135,23 @@ function createToolButton(innerHTML, onClickHandler) { // 修改 text 参数为 
         padding: '2px 5px',
         fontSize: '10px',
         borderRadius: '3px',
-        display: 'flex', // 使按钮内容可以 flex 布局，方便图标和文字对齐
-        alignItems: 'center', // 垂直居中
-        justifyContent: 'center' // 水平居中
+        display: 'flex', // Allows button contents to use flex layout for icon-text alignment
+        alignItems: 'center', // Vertically center
+        justifyContent: 'center' // Horizontally center
     });
-    // 添加hover效果
+    // Add hover effect
     button.addEventListener('mouseover', () => {
         button.style.backgroundColor = '#a00';
     });
     button.addEventListener('mouseout', () => {
-        button.style.backgroundColor = 'transparent'; //或者'none'
+        button.style.backgroundColor = 'transparent'; // or 'none'
     });
 
-    const icon = button.querySelector('i'); // 选中按钮内的图标，设置图标样式
+    const icon = button.querySelector('i'); // Select icon inside button and set its style
     if (icon) {
         Object.assign(icon.style, {
-            marginRight: '0px', // 图标和文字间距
-            fontSize: '12px' // 图标大小
+            marginRight: '0px', // Spacing between icon and text
+            fontSize: '12px' // Icon size
         });
     }
 
@@ -160,12 +160,12 @@ function createToolButton(innerHTML, onClickHandler) { // 修改 text 参数为 
 }
 
 /**
- * 加载并添加测试内容到容器中。
- * @param {HTMLElement} container 容器元素
+ * Loads and appends test content to the container.
+ * @param {HTMLElement} container Container element
  */
 function loadAndAppendTestContent(container) {
     if (codeQueue.length === 0) {
-        appendTestOutput(container, 'SYSTEM.f(()=>{添加测试代码}, "函数名")');
+        appendTestOutput(container, 'SYSTEM.f(()=>{add test code}, "function name")');
         return;
     }
 
@@ -175,10 +175,10 @@ function loadAndAppendTestContent(container) {
 }
 
 /**
- * 为单个测试函数创建并添加执行按钮到容器。
- * @param {HTMLElement} container 容器元素
- * @param {object} codeObject 包含测试函数和函数名的对象 { func: Function, name: string }
- * @param {number} index 函数在队列中的索引
+ * Creates and appends an execution button for a single test function to the container.
+ * @param {HTMLElement} container Container element
+ * @param {object} codeObject Object containing the test function and its name { func: Function, name: string }
+ * @param {number} index Index of the function in the queue
  */
 function appendTestFunctionButton(container, codeObject, index) {
     const functionContainer = document.createElement('div');
@@ -195,22 +195,22 @@ function appendTestFunctionButton(container, codeObject, index) {
     functionLabel.style.marginRight = '5px';
     functionContainer.appendChild(functionLabel);
 
-    const runButton = createToolButton(`<i class="fas fa-play"></i>`, async (event) => { //  添加 Font Awesome 图标，并隐藏文字
+    const runButton = createToolButton(`<i class="fas fa-play"></i>`, async (event) => { // Add Font Awesome icon and hide text
         event.stopPropagation();
         const startTimeI = performance.now();
         const functionName = codeObject.name;
         try {
             console.log(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} START`, 'color: blue; font-weight: bold');
             await codeObject.func();
-            //  "END" 信息也使用粗体显示
-            console.log(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} END (用时: ${(performance.now() - startTimeI).toFixed(2)}ms)`, 'color: green; font-weight: bold');
+            // Also display "END" message in bold
+            console.log(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} END (Time: ${(performance.now() - startTimeI).toFixed(2)}ms)`, 'color: green; font-weight: bold');
         } catch (error) {
             console.error(`%c[${new Date().toLocaleTimeString()}] ${functionName || `f[${index}]`} ERROR:`, 'color: red; font-weight: bold', error);
             console.error(error);
         }
     });
-    runButton.style.padding = '2px'; // 调整 runButton 的 padding
-    runButton.style.minWidth = 'auto'; // 移除最小宽度限制，让按钮更贴合图标
+    runButton.style.padding = '2px'; // Adjust runButton padding
+    runButton.style.minWidth = 'auto'; // Remove minimum width constraint to make the button fit the icon better
     functionContainer.appendChild(runButton);
     container.appendChild(functionContainer);
 }
