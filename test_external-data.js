@@ -1,6 +1,6 @@
 /**
- * 外部数据适配器测试脚本 v2.0.0
- * 基于用户成功的测试代码重写
+ * External Data Adapter Test Script v2.0.0
+ * Rewritten based on user-successful test code
  */
 
 (function() {
@@ -25,96 +25,96 @@
             const result = { testName, success, message, data, timestamp: new Date().toISOString() };
             this.testResults.push(result);
             console.log((success ? '✅ ' : '❌ ') + testName + ': ' + message);
-            if (data) console.log('   数据:', data);
+            if (data) console.log('   Data:', data);
         }
 
         checkAdapter() {
-            this.printTitle('检查适配器状态');
+            this.printTitle('Check Adapter Status');
             if (typeof window.stMemoryEnhancement !== 'undefined') {
-                console.log('插件版本:', window.stMemoryEnhancement.VERSION);
+                console.log('Plugin Version:', window.stMemoryEnhancement.VERSION);
             }
             if (typeof window.externalDataAdapter === 'undefined') {
-                this.recordResult('适配器检查', false, '适配器未加载');
-                console.log('\n💡 提示：');
-                console.log('   1. 确保插件已正确加载');
-                console.log('   2. 确保 external-data-adapter.js 已被导入');
+                this.recordResult('Adapter Check', false, 'Adapter not loaded');
+                console.log('\n💡 Tips:');
+                console.log('   1. Ensure the plugin is properly loaded');
+                console.log('   2. Ensure external-data-adapter.js has been imported');
                 return false;
             }
             const state = window.externalDataAdapter.getState();
             if (!state.initialized) {
-                this.recordResult('适配器检查', false, '适配器未初始化', state);
+                this.recordResult('Adapter Check', false, 'Adapter not initialized', state);
                 return false;
             }
-            this.recordResult('适配器检查', true, '适配器已就绪', state);
+            this.recordResult('Adapter Check', true, 'Adapter ready', state);
             return true;
         }
 
         async testFullData() {
-            this.printTitle('测试完整数据（用户成功测试数据）');
+            this.printTitle('Test Full Data (User-Successful Test Data)');
             const xmlData = `<tableEdit> 
 <!-- 
-insertRow(0, {"0":"十月","1":"冬天/下雪","2":"学校","3":"<user>/悠悠"}) 
+insertRow(0, {"0":"October","1":"Winter/Snowing","2":"School","3":"<user>/Youyou"}) 
 deleteRow(1, 2) 
-insertRow(1, {"0":"悠悠", "1":"体重60kg/黑色长发", "2":"开朗活泼", "3":"学生", "4":"羽毛球", "5":"鬼灭之刃", "6":"宿舍", "7":"运动部部长"}) 
-insertRow(1, {"0":"<user>", "1":"制服/短发", "2":"忧郁", "3":"学生", "4":"唱歌", "5":"咒术回战", "6":"自己家", "7":"学生会长"}) 
-insertRow(2, {"0":"悠悠", "1":"同学", "2":"依赖/喜欢", "3":"高"}) 
-updateRow(4, 1, {"0": "小花", "1": "破坏表白失败", "2": "10月", "3": "学校","4":"愤怒"}) 
-insertRow(4, {"0": "<user>/悠悠", "1": "悠悠向<user>表白", "2": "2021-10-05", "3": "教室","4":"感动"}) 
-insertRow(5, {"0":"<user>","1":"社团赛奖品","2":"奖杯","3":"比赛第一名"}) 
+insertRow(1, {"0":"Youyou", "1":"Weight 60kg/Long black hair", "2":"Cheerful and lively", "3":"Student", "4":"Badminton", "5":"Demon Slayer", "6":"Dormitory", "7":"Sports Club President"}) 
+insertRow(1, {"0":"<user>", "1":"Uniform/Short hair", "2":"Melancholic", "3":"Student", "4":"Singing", "5":"Jujutsu Kaisen", "6":"Own home", "7":"Student Council President"}) 
+insertRow(2, {"0":"Youyou", "1":"Classmate", "2":"Dependent/Fond of", "3":"Tall"}) 
+updateRow(4, 1, {"0": "Xiaohua", "1": "Ruined confession failure", "2": "October", "3": "School","4":"Angry"}) 
+insertRow(4, {"0": "<user>/Youyou", "1": "Youyou confessed to <user>", "2": "2021-10-05", "3": "Classroom","4":"Touched"}) 
+insertRow(5, {"0":"<user>","1":"Club competition prize","2":"Trophy","3":"First place in competition"}) 
 --> 
 </tableEdit>`;
             try {
-                console.log('发送完整测试数据...');
+                console.log('Sending full test data...');
                 const result = await window.externalDataAdapter.processXmlData(xmlData);
-                this.recordResult('完整数据处理', result.success, result.message || '处理成功', result);
+                this.recordResult('Full Data Processing', result.success, result.message || 'Processing successful', result);
                 if (result.success) {
-                    console.log('\n💡 请检查：');
-                    console.log('   1. 前端表格是否已更新');
-                    console.log('   2. 刷新页面后数据是否仍存在');
+                    console.log('\n💡 Please verify:');
+                    console.log('   1. Whether the frontend table has been updated');
+                    console.log('   2. Whether data persists after page refresh');
                 }
                 return result.success;
             } catch (error) {
-                this.recordResult('完整数据处理', false, '异常: ' + error.message, error);
-                console.error('错误详情:', error);
+                this.recordResult('Full Data Processing', false, 'Exception: ' + error.message, error);
+                console.error('Error details:', error);
                 return false;
             }
         }
 
         async testXmlData() {
-            this.printTitle('测试 XML 格式数据');
-            const xmlData = `<tableEdit><!-- insertRow(0, {"0":"测试角色", "1":"测试描述", "2":"测试属性"}) --></tableEdit>`;
+            this.printTitle('Test XML Format Data');
+            const xmlData = `<tableEdit><!-- insertRow(0, {"0":"Test Character", "1":"Test Description", "2":"Test Attribute"}) --></tableEdit>`;
             try {
-                console.log('发送 XML 数据...');
+                console.log('Sending XML data...');
                 const result = await window.externalDataAdapter.processXmlData(xmlData);
-                this.recordResult('XML 数据处理', result.success, result.message || '处理成功', result);
+                this.recordResult('XML Data Processing', result.success, result.message || 'Processing successful', result);
                 return result.success;
             } catch (error) {
-                this.recordResult('XML 数据处理', false, '异常: ' + error.message, error);
+                this.recordResult('XML Data Processing', false, 'Exception: ' + error.message, error);
                 return false;
             }
         }
 
         async testJsonData() {
-            this.printTitle('测试 JSON 格式数据');
-            const jsonData = { type: 'insert', tableIndex: 0, data: {"0": "JSON测试角色", "1": "JSON测试描述", "2": "JSON测试属性"} };
+            this.printTitle('Test JSON Format Data');
+            const jsonData = { type: 'insert', tableIndex: 0, data: {"0": "JSON Test Character", "1": "JSON Test Description", "2": "JSON Test Attribute"} };
             try {
-                console.log('发送 JSON 数据...');
+                console.log('Sending JSON data...');
                 const result = await window.externalDataAdapter.processJsonData(jsonData);
-                this.recordResult('JSON 数据处理', result.success, result.message || '处理成功', result);
+                this.recordResult('JSON Data Processing', result.success, result.message || 'Processing successful', result);
                 return result.success;
             } catch (error) {
-                this.recordResult('JSON 数据处理', false, '异常: ' + error.message, error);
+                this.recordResult('JSON Data Processing', false, 'Exception: ' + error.message, error);
                 return false;
             }
         }
 
         async runAllTests() {
-            this.printTitle('外部数据适配器测试开始');
-            console.log('测试时间:', new Date().toLocaleString());
+            this.printTitle('External Data Adapter Testing Started');
+            console.log('Test Time:', new Date().toLocaleString());
             console.log('');
             this.testResults = [];
             if (!this.checkAdapter()) {
-                console.log('\n❌ 适配器检查失败，测试中止');
+                console.log('\n❌ Adapter check failed, testing aborted');
                 return;
             }
             console.log('');
@@ -128,18 +128,18 @@ insertRow(5, {"0":"<user>","1":"社团赛奖品","2":"奖杯","3":"比赛第一�
         }
 
         printTestSummary() {
-            this.printTitle('测试总结');
+            this.printTitle('Test Summary');
             const total = this.testResults.length;
             const passed = this.testResults.filter(r => r.success).length;
             const failed = total - passed;
-            console.log('总测试数: ' + total);
-            console.log('✅ 通过: ' + passed);
-            console.log('❌ 失败: ' + failed);
-            console.log('通过率: ' + ((passed / total) * 100).toFixed(2) + '%');
+            console.log('Total Tests: ' + total);
+            console.log('✅ Passed: ' + passed);
+            console.log('❌ Failed: ' + failed);
+            console.log('Pass Rate: ' + ((passed / total) * 100).toFixed(2) + '%');
             if (failed === 0) {
-                console.log('\n🎉 所有测试通过！');
+                console.log('\n🎉 All tests passed!');
             } else {
-                console.log('\n⚠️ 部分测试失败，请查看上面的详细信息');
+                console.log('\n⚠️ Some tests failed, please review details above');
             }
             this.printSeparator();
         }
@@ -151,16 +151,16 @@ insertRow(5, {"0":"<user>","1":"社团赛奖品","2":"奖杯","3":"比赛第一�
 
     window.externalDataTester = new ExternalDataTester();
     console.log('╔════════════════════════════════════════════════════════════════════════════╗');
-    console.log('║              外部数据适配器测试脚本已加载 (v2.0.0)                          ║');
+    console.log('║              External Data Adapter Test Script Loaded (v2.0.0)             ║');
     console.log('╚════════════════════════════════════════════════════════════════════════════╝');
     console.log('');
-    console.log('使用方法：');
-    console.log('  1. 运行所有测试: externalDataTester.runAllTests()');
-    console.log('  2. 检查适配器: externalDataTester.checkAdapter()');
-    console.log('  3. 测试 XML: externalDataTester.testXmlData()');
-    console.log('  4. 测试 JSON: externalDataTester.testJsonData()');
-    console.log('  5. 测试完整数据: externalDataTester.testFullData()');
-    console.log('  6. 查看结果: externalDataTester.getResults()');
+    console.log('Usage:');
+    console.log('  1. Run all tests: externalDataTester.runAllTests()');
+    console.log('  2. Check adapter: externalDataTester.checkAdapter()');
+    console.log('  3. Test XML: externalDataTester.testXmlData()');
+    console.log('  4. Test JSON: externalDataTester.testJsonData()');
+    console.log('  5. Test full data: externalDataTester.testFullData()');
+    console.log('  6. View results: externalDataTester.getResults()');
     console.log('');
-    console.log('注意：所有测试函数都是异步的，需要使用 await');
+    console.log('Note: All test functions are asynchronous and require await');
 })();
