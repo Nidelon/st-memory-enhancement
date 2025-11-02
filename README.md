@@ -58,10 +58,6 @@ The Memory Enhancement Plugin injects powerful **structured long-term memory** i
 * 📦 **Easy Export and Sharing:** Rich customization options (prompt settings, injection modes, etc.) allow effortless export and sharing of table structures and configurations.
 * 🚀 **Stepwise Operations:** Future updates will integrate with main and sub-APIs for smart task allocation (generation, organization, reconstruction, etc.), supporting custom trigger timings for efficient memory management.
 
-<p align="center">
-    <img src="https://github.com/user-attachments/assets/36997237-2c72-46b5-a8df-f5af3fa42171" alt="Plugin Interface Example" style="max-width:80%; border-radius: 5px;">
-</p>
-
 ## 🚀 Quick Start Guide
 
 > [!WARNING]
@@ -69,23 +65,7 @@ The Memory Enhancement Plugin injects powerful **structured long-term memory** i
 
 1. **Install the Plugin:** In the SillyTavern interface, click `Extensions` > `Install Extension`.
 
-   <p align="center">
-       <img src="https://github.com/user-attachments/assets/67904e14-dc8d-4d7c-a1a8-d24253b72621" alt="Plugin Installation Step 1" style="max-width:70%; border-radius: 5px;">
-   </p>
-
-2. **Enter the Plugin URL:** In the popup window, enter the GitHub URL `https://github.com/muyoou/st-memory-enhancement`, then select `Install for all users`.
-
-   <p align="center">
-       <img src="https://github.com/user-attachments/assets/9f39015f-63bb-4741-bb7f-740c02f1de17" alt="Plugin Installation Step 2" style="max-width:70%; border-radius: 5px;">
-   </p>
-
-   **China Mirror:** If you encounter network issues, try the Gitee mirror: `https://gitee.com/muyoou/st-memory-enhancement`
-
-## 💖 Support & Community
-
-**🤝 Contribute:** Contributions are welcome! Check out the <a href="https://github.com/muyoou/st-memory-enhancement/blob/dev/README.md">Contribution Guide</a> to learn how to share your ideas and code.
-
-**💬 Community Chat:** Join the discussion & bug report QQ group: <a href="#">**1030109849**</a> — connect with other users, share experiences, and solve issues together.
+2. **Enter the Plugin URL:** In the popup window, enter the GitHub URL `https://github.com/Nidelon/st-memory-enhancement`, then select `Install for all users`.
 
 ## 🥰 Contributors
 
