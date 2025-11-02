@@ -7,54 +7,54 @@ import {getTablePrompt,initTableData, undoSheets} from "../../index.js"
 let toBeExecuted = [];
 
 /**
- * 初始化两步总结所需的数据
+ * Initialize data required for two-step summarization
  * @param chat
  * */
 function InitChatForTableTwoStepSummary(chat) {
-    // 如果currentPiece.uid未定义，则初始化为随机字符串
+    // If currentPiece.uid is undefined, initialize it with a random string
     if (chat.uid === undefined) {
         chat.uid = SYSTEM.generateRandomString(22);
     }
-    // 如果currentPiece.uid_that_references_table_step_update未定义，则初始化为{}
+    // If currentPiece.uid_that_references_table_step_update is undefined, initialize it as {}
     if (chat.two_step_links === undefined) {
         chat.two_step_links = {};
     }
-    // 如果currentPiece.uid_that_references_table_step_update未定义，则初始化为{}
+    // If currentPiece.uid_that_references_table_step_update is undefined, initialize it as {}
     if (chat.two_step_waiting === undefined) {
         chat.two_step_waiting = {};
     }
 }
 
 /**
- * 获取当前滑动对话的唯一标识符
+ * Get the unique identifier for the currently swiped message
  * @param chat
  * @returns {string}
  */
 function getSwipeUid(chat) {
-    // 初始化chat
+    // Initialize chat
     InitChatForTableTwoStepSummary(chat);
-    // 获取当前swipe的唯一标识符
+    // Get the unique identifier for the current swipe
     const swipeUid = `${chat.uid}_${chat.swipe_id}`;
-    // 检查当前swipe是否已经存在必要的数据结构
+    // Ensure necessary data structures exist for this swipe
     if (!(swipeUid in chat.two_step_links)) chat.two_step_links[swipeUid] = [];
     if (!(swipeUid in chat.two_step_waiting)) chat.two_step_waiting[swipeUid] = true;
     return swipeUid;
 }
 
 /**
- * 检查当前chat是否已经被父级chat执行过
+ * Check whether the current chat has already been executed by a parent chat
  * @param chat
  * @param targetSwipeUid
  * @returns {*}
  */
 function checkIfChatIsExecuted(chat, targetSwipeUid) {
-    const chatSwipeUid = getSwipeUid(chat); // 获取当前chat的唯一标识符
-    const chatExecutedSwipes = chat.two_step_links[chatSwipeUid]; // 获取当前chat已经执行过的父级chat
-    return chatExecutedSwipes.includes(targetSwipeUid);   // 检查当前chat是否已经被目标chat执行过
+    const chatSwipeUid = getSwipeUid(chat); // Get unique identifier for current chat
+    const chatExecutedSwipes = chat.two_step_links[chatSwipeUid]; // Get list of parent chats already executed by current chat
+    return chatExecutedSwipes.includes(targetSwipeUid);   // Check if current chat has already been executed by the target chat
 }
 
 /**
- * 处理对话中的标识符
+ * Process identifiers within messages
  * @param string
  * @returns {string}
  */
@@ -72,102 +72,102 @@ function MarkChatAsWaiting(chat, swipeUid) {
 }
 
 /**
- * 执行两步总结
+ * Execute two-step summarization
  * */
 export async function TableTwoStepSummary(mode) {
     if (mode!=="manual" && (USER.tableBaseSetting.isExtensionAble === false || USER.tableBaseSetting.step_by_step === false)) return
 
-    // 获取需要执行的两步总结
+    // Get the chat piece requiring two-step summarization
     const {piece: todoPiece} = USER.getChatPiece()
 
     if (todoPiece === undefined) {
-        console.log('未找到待填表的对话片段');
-        EDITOR.error('未找到待填表的对话片段，请检查当前对话是否正确。');
+        console.log('No chat segment found for table filling');
+        EDITOR.error('No chat segment found for table filling. Please verify the current conversation.');
         return;
     }
     let todoChats = todoPiece.mes;
 
-    console.log('待填表的对话片段:', todoChats);
+    console.log('Chat segments pending table filling:', todoChats);
 
-    // 检查是否开启执行前确认
-    const popupContentHtml = `<p>累计 ${todoChats.length} 长度的文本，是否开始独立填表？</p>`;
-    // 移除了模板选择相关的HTML和逻辑
+    // Check if pre-execution confirmation is enabled
+    const popupContentHtml = `<p>A total of ${todoChats.length} messages will be processed. Proceed with independent table filling?</p>`;
+    // Removed template selection-related HTML and logic
 
     const popupId = 'stepwiseSummaryConfirm';
     const confirmResult = await newPopupConfirm(
         popupContentHtml,
-        "取消",
-        "执行填表",
+        "Cancel",
+        "Execute Table Filling",
         popupId,
-        "不再提示", // dontRemindText: Permanently disables the popup
-        "一直选是"  // alwaysConfirmText: Confirms for the session
+        "Do not ask again", // dontRemindText: Permanently disables the popup
+        "Always confirm"  // alwaysConfirmText: Confirms for the session
     );
 
     console.log('newPopupConfirm result for stepwise summary:', confirmResult);
 
     if (confirmResult === false) {
-        console.log('用户取消执行独立填表: ', `(${todoChats.length}) `, toBeExecuted);
+        console.log('User canceled independent table filling: ', `(${todoChats.length}) `, toBeExecuted);
         MarkChatAsWaiting(currentPiece, swipeUid);
     } else {
         // This block executes if confirmResult is true OR 'dont_remind_active'
         if (confirmResult === 'dont_remind_active') {
-            console.log('独立填表弹窗已被禁止，自动执行。');
-            EDITOR.info('已选择“一直选是”，操作将在后台自动执行...'); // <--- 增加后台执行提示
+            console.log('Independent table-filling popup has been disabled; executing automatically.');
+            EDITOR.info('Option "Always confirm" selected. Operation will run automatically in the background...'); // <--- Added background execution notice
         } else { // confirmResult === true
-            console.log('用户确认执行独立填表 (或首次选择了“一直选是”并确认)');
+            console.log('User confirmed independent table filling (or selected "Always confirm" for the first time and confirmed)');
         }
         manualSummaryChat(todoChats, confirmResult);
     }
 }
 
 /**
- * 手动总结聊天（立即填表）
- * 重构逻辑：
- * 1. 恢复：首先调用内建的 `undoSheets` 函数，将表格状态恢复到上一版本。
- * 2. 执行：以恢复后的干净状态为基础，调用标准增量更新流程，向AI请求新的操作并执行。
- * @param {Array} todoChats - 需要用于填表的聊天记录。
- * @param {string|boolean} confirmResult - 用户的确认结果。
+ * Manually summarize chat (immediate table filling)
+ * Restructured logic:
+ * 1. Revert: First call the built-in `undoSheets` function to restore the table state to its previous version.
+ * 2. Execute: Based on this clean restored state, invoke the standard incremental update process to request new operations from the AI and apply them.
+ * @param {Array} todoChats - Chat history to be used for table filling.
+ * @param {string|boolean} confirmResult - User's confirmation result.
  */
 export async function manualSummaryChat(todoChats, confirmResult) {
-    // 步骤一：检查是否需要执行“撤销”操作
-    // 首先获取当前的聊天片段，以判断表格状态
+    // Step 1: Check if an "undo" operation is needed
+    // First, obtain the current chat piece to assess the table state
     const { piece: initialPiece } = USER.getChatPiece();
     if (!initialPiece) {
-        EDITOR.error("无法获取当前的聊天片段，操作中止。");
+        EDITOR.error("Failed to retrieve current chat piece; operation aborted.");
         return;
     }
 
-    // 只有当表格中已经有内容时，才执行“撤销并重做”
+    // Only perform "undo and redo" if the table already contains data
     if (initialPiece.hash_sheets && Object.keys(initialPiece.hash_sheets).length > 0) {
-        console.log('[Memory Enhancement] 立即填表：检测到表格中有数据，执行恢复操作...');
+        console.log('[Memory Enhancement] Immediate table filling: Detected existing table data; performing revert...');
         try {
             await undoSheets(0);
-            EDITOR.success('表格已恢复到上一版本。');
-            console.log('[Memory Enhancement] 表格恢复成功，准备执行填表。');
+            EDITOR.success('Table reverted to previous version.');
+            console.log('[Memory Enhancement] Table revert successful; preparing to fill table.');
         } catch (e) {
-            EDITOR.error('恢复表格失败，操作中止。', e.message, e);
-            console.error('[Memory Enhancement] 调用 undoSheets 失败:', e);
+            EDITOR.error('Failed to revert table; operation aborted.', e.message, e);
+            console.error('[Memory Enhancement] Failed calling undoSheets:', e);
             return;
         }
     } else {
-        console.log('[Memory Enhancement] 立即填表：检测到为空表，跳过恢复步骤，直接执行填表。');
+        console.log('[Memory Enhancement] Immediate table filling: Empty table detected; skipping revert and proceeding directly to table filling.');
     }
 
-    // 步骤二：以当前状态（可能已恢复）为基础，继续执行填表
-    // 重新获取 piece，确保我们使用的是最新状态（无论是原始状态还是恢复后的状态）
+    // Step 2: Proceed with table filling based on current state (possibly reverted)
+    // Re-fetch the piece to ensure we're working with the latest state (either original or reverted)
     const { piece: referencePiece } = USER.getChatPiece();
     if (!referencePiece) {
-        EDITOR.error("无法获取用于操作的聊天片段，操作中止。");
+        EDITOR.error("Failed to retrieve chat piece for operation; operation aborted.");
         return;
     }
     
-    // 表格数据
+    // Table data
     const originText = getTablePrompt(referencePiece);
 
-    // 表格总体提示词
-    const finalPrompt = initTableData(); // 获取表格相关提示词
+    // Overall table prompt
+    const finalPrompt = initTableData(); // Retrieve table-related prompts
     
-    // 设置
+    // Settings
     const useMainApiForStepByStep = USER.tableBaseSetting.step_by_step_use_main_api ?? true;
     const isSilentMode = confirmResult === 'dont_remind_active';
 
@@ -175,28 +175,28 @@ export async function manualSummaryChat(todoChats, confirmResult) {
         todoChats,
         originText,
         finalPrompt,
-        referencePiece, // 直接传递原始的 piece 对象引用
+        referencePiece, // Pass the original piece object reference directly
         useMainApiForStepByStep, // API choice for step-by-step
         USER.tableBaseSetting.bool_silent_refresh, // isSilentUpdate
         isSilentMode // Pass silent mode flag
     );
 
-    console.log('执行独立填表（增量更新）结果:', r);
+    console.log('Result of independent table filling (incremental update):', r);
     if (r === 'success') {
-        // 由于直接在 referencePiece 引用上操作，修改已自动同步，无需手动回写 hash_sheets。
+        // Since modifications were made directly on the referencePiece reference, changes are auto-synced; no need to manually write back hash_sheets.
         toBeExecuted.forEach(chat => {
             const chatSwipeUid = getSwipeUid(chat);
-            chat.two_step_links[chatSwipeUid].push(swipeUid);   // 标记已执行的两步总结
+            chat.two_step_links[chatSwipeUid].push(swipeUid);   // Mark two-step summarization as executed
         });
         toBeExecuted = [];
 
-        // 保存并刷新UI
+        // Save and refresh UI
         await USER.saveChat();
-        // 根据用户要求，使用整页刷新来确保包括宏在内的所有数据都得到更新。
+        // As requested by the user, perform a full page reload to ensure all data—including macros—is updated.
         reloadCurrentChat();
         return true;
     } else if (r === 'suspended' || r === 'error' || !r) {
-        console.log('执行增量独立填表失败或取消: ', `(${todoChats.length}) `, toBeExecuted);
+        console.log('Incremental independent table filling failed or was canceled: ', `(${todoChats.length}) `, toBeExecuted);
         return false;
     }
     
