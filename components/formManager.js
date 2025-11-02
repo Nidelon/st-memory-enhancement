@@ -5,16 +5,16 @@ import { PopupMenu } from './popupMenu.js';
 class Form {
     constructor(formConfig, initialData, updateCallback) {
         this.formConfig = formConfig;
-        // 创建数据副本
+        // Create a copy of the data
         this.formData = { ...initialData };
-        this.eventHandlers = {}; // 用于存储外部传入的事件处理函数
-        this.updateCallback = updateCallback; // 用于实时更新外部数据的回调函数
+        this.eventHandlers = {}; // Used to store externally provided event handlers
+        this.updateCallback = updateCallback; // Callback function for real-time external data updates
     }
 
     /**
-     * 注册事件处理函数
-     * @param {string} eventName - 事件名称，例如按钮的 id 或 action
-     * @param {function} handler - 事件处理函数
+     * Register an event handler
+     * @param {string} eventName - Event name, e.g., button id or action
+     * @param {function} handler - Event handler function
      */
     on(eventName, handler) {
         this.eventHandlers[eventName] = handler;
@@ -22,17 +22,17 @@ class Form {
 
 
     /**
-     * 渲染表单 HTML 字符串
-     * @returns {string} - 表单 HTML 字符串
+     * Render form as an HTML string
+     * @returns {string} - Form HTML string
      */
     renderForm() {
         const config = this.formConfig;
 
         if (!config) {
-            return `<div>未知的表单配置，无法生成编辑内容。</div>`;
+            return `<div>Unknown form configuration. Unable to generate editable content.</div>`;
         }
 
-        // 构建表单 HTML 字符串
+        // Build form HTML string
         let contentHTML = `
             <div class="wide100p padding5 dataBankAttachments">
                 <h2 class="marginBot5"><span>${config.formTitle}</span></h2>
@@ -40,9 +40,9 @@ class Form {
                 <div class="dataTable_tablePrompt_list">
         `;
 
-        // 遍历字段配置生成表单项
+        // Iterate through field configurations to generate form items
         for (const field of config.fields) {
-            field.id = field.id || field.dataKey; // 如果没有指定 id，则使用 dataKey 作为 id
+            field.id = field.id || field.dataKey; // If no id is specified, use dataKey as id
             if (field.type === 'button') {
                 contentHTML += `
                     <div class="form-buttons">
@@ -106,25 +106,25 @@ class Form {
             </div>
         `;
 
-        const self = this; // 缓存 this 上下文，以便在 setTimeout 中使用
+        const self = this; // Cache 'this' context for use inside setTimeout
 
-        // 添加事件监听器 和 初始化弹窗内容
-        setTimeout(() => { // 确保 DOM 元素已渲染
+        // Add event listeners and initialize popup content
+        setTimeout(() => { // Ensure DOM elements are rendered
             for (const field of config.fields) {
                 const inputElement = document.getElementById(field.id);
-                if (!inputElement) continue; // 元素可能不存在
+                if (!inputElement) continue; // Element might not exist
 
                 if (field.type === 'button') {
-                    // 为按钮添加点击事件
+                    // Add click event to button
                     inputElement.addEventListener('click', () => {
                         if (field.event && typeof field.event === 'string' && self.eventHandlers[field.event]) {
-                            self.eventHandlers[field.event](self.formData); // 执行外部传入的事件处理函数，并传递 formData
+                            self.eventHandlers[field.event](self.formData); // Execute externally provided event handler and pass formData
                         } else if (field.event && typeof field.event === 'function') {
-                            field.event(self.formData); // 或者直接执行配置中的函数 (如果 event 是函数)
+                            field.event(self.formData); // Or directly execute the function from config (if event is a function)
                         }
                     });
                 } else {
-                    // 初始化值，从 formData 中读取
+                    // Initialize value from formData
                     if (self.formData[field.dataKey] !== undefined) {
                         if (field.type === 'checkbox') {
                             inputElement.checked = self.formData[field.dataKey] === true;
@@ -133,7 +133,7 @@ class Form {
                         }
                     }
 
-                    // 添加事件监听器，修改 formData
+                    // Add event listener to update formData
                     if (field.type === 'checkbox') {
                         inputElement.addEventListener('change', (e) => {
                             const newValue = e.target.checked;
@@ -150,7 +150,7 @@ class Form {
                                 self.updateCallback(field.dataKey, newValue);
                             }
 
-                            // 新增：## 自动完成功能
+                            // New: ## Autocomplete feature
                             if (field.type === 'textarea' && e.target.value.slice(-2) === '##') {
                                 const popupMenu = new PopupMenu();
                                 const sheets = BASE.getChatSheets();
@@ -166,7 +166,7 @@ class Form {
                                         });
                                     });
                                 } else {
-                                    popupMenu.add('没有可用的表格', () => {});
+                                    popupMenu.add('No available sheets', () => {});
                                 }
                                 
                                 const rect = e.target.getBoundingClientRect();
@@ -182,8 +182,8 @@ class Form {
     }
 
     /**
-     * 获取表单修改后的数据副本
-     * @returns {object} - 修改后的数据副本
+     * Get a copy of the modified form data
+     * @returns {object} - Copy of modified data
      */
     result() {
         return this.formData;
