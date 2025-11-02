@@ -1,9 +1,9 @@
-// 生成或获取设备ID（从用户代码中提取）
+// Generate or obtain a device ID (extracted from user code)
 
 function loadFontAwesome() {
     // const fontAwesomeLink = document.createElement('link');
     // fontAwesomeLink.rel = 'stylesheet';
-    // fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'; // 替换为 Font Awesome CDN 链接
+    // fontAwesomeLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css'; // Replace with Font Awesome CDN link
     // document.head.appendChild(fontAwesomeLink);
 }
 
@@ -31,21 +31,21 @@ export function cssColorToRgba(name, opacity = 1) {
 }
 
 /**
- * 创建一个只读属性
- * @param {object} obj 要在其上定义属性的对象
- * @param {string} propertyName 属性名称
- * @param {function} getter 获取属性值的函数
+ * Create a read-only property
+ * @param {object} obj The object on which to define the property
+ * @param {string} propertyName The name of the property
+ * @param {function} getter The function to retrieve the property value
  */
 export function readonly(obj, propertyName, getter) {
     Object.defineProperty(obj, propertyName, {
         get: getter,
         set(value) {
-            throw new Error(`${propertyName} 属性是只读的，不允许写入。`);
+            throw new Error(`${propertyName} property is read-only and cannot be assigned.`);
         }
     });
 }
 
-let step = 0;  // 保证每次调用该函数时绝对能生成不一样的随机数
+let step = 0;  // Ensure a different random number is absolutely generated on every call
 function stepRandom(bias = step) {
     // console.log('stepRandom');
     let r = 100000 / (100000 / Math.random() + bias++);
@@ -53,9 +53,9 @@ function stepRandom(bias = step) {
 }
 
 /**
- * 生成一个随机字符串
- * @description 请注意，该函数不适用于安全敏感的场景，在长度低于 12 时有碰撞的风险
- * @description 在 length = 8 时有 0.000023% (1,000,000次实验) 的可能性会出现重复
+ * Generate a random string
+ * @description Note: This function is not suitable for security-sensitive scenarios. There is a collision risk when length is less than 12.
+ * @description When length = 8, there is a 0.000023% chance (in 1,000,000 experiments) of duplication.
  * @param length
  * @param bias
  * @param characters
@@ -70,8 +70,8 @@ export function generateRandomString(length = 12, bias = step, characters = 'ABC
 }
 
 /**
- * 生成一个随机数字
- * @description 请注意，该函数不适用于安全敏感的场景，且在 length = 8 时有 0.00005% (1,000,000次实验) 的可能性会出现重复
+ * Generate a random number
+ * @description Note: This function is not suitable for security-sensitive scenarios. When length = 8, there is a 0.00005% chance (in 1,000,000 experiments) of duplication.
  * @param length
  * @param forceLength
  * @returns {number}
@@ -82,7 +82,7 @@ export function generateRandomNumber(length = 12, forceLength = true) {
     do {
         randomNumber = Math.floor(stepRandom() * Math.pow(10, length));
 
-        // 如果需要强制长度，确保生成的数字符合要求
+        // If forced length is required, ensure the generated number meets the requirement
         if (forceLength && randomNumber.toString().length < length) {
             randomNumber *= Math.pow(10, length - randomNumber.toString().length);
         }
@@ -91,10 +91,10 @@ export function generateRandomNumber(length = 12, forceLength = true) {
     return randomNumber;
 }
 
-//random一个唯一id加密用
+// Generate a unique ID for encryption purposes
 export function generateUid() {
     const rid = `st-${Date.now()}-${generateRandomString(32)}`;
-    console.log('生成的唯一ID:', rid);
+    console.log('Generated unique ID:', rid);
     return rid;
 }
 
@@ -109,10 +109,10 @@ export function generateDeviceId() {
 
 let antiShakeTimers = {};
 /**
- * 防抖函数，控制某个操作的执行频率
- * @param {string} uid 唯一标识符，用于区分不同的防抖操作
- * @param {number} interval 时间间隔，单位毫秒，在这个间隔内只允许执行一次
- * @returns {boolean} 如果允许执行返回 true，否则返回 false
+ * Debounce function to control execution frequency of an operation
+ * @param {string} uid Unique identifier to distinguish different debounce operations
+ * @param {number} interval Time interval in milliseconds; only one execution is allowed within this interval
+ * @returns {boolean} Returns true if execution is allowed, otherwise false
  */
 export function lazy(uid, interval = 100) {
     if (!antiShakeTimers[uid]) {
@@ -122,39 +122,38 @@ export function lazy(uid, interval = 100) {
     const currentTime = Date.now();
 
     if (currentTime - timer.lastExecutionTime < interval) {
-        return false; // 时间间隔太短，防抖，不允许执行
+        return false; // Interval too short; debounce prevents execution
     }
 
     timer.lastExecutionTime = currentTime;
-    return true; // 允许执行
+    return true; // Execution allowed
 }
 
 
 /**
- * 使用原生 JavaScript 方法计算字符串的 MD5 哈希值
- * @param {string} string 要计算哈希的字符串
- * @returns {Promise<string>}  返回一个 Promise，resolve 值为十六进制表示的 MD5 哈希字符串
+ * Calculate the MD5 hash of a string using native JavaScript methods
+ * @param {string} string The input string to hash
+ * @returns {Promise<string>} Returns a Promise resolving to the MD5 hash as a hexadecimal string
  */
 export async function calculateStringHash(string) {
-    // 检查string是否为字符串
+    // Check if string is actually a string
     if (typeof string !== 'string') {
         throw new Error('The input value is not a string.');
     }
 
-    // 步骤 1: 将字符串编码为 Uint8Array
+    // Step 1: Encode the string into a Uint8Array
     const textEncoder = new TextEncoder();
     const data = textEncoder.encode(string);
 
-    // 步骤 2: 使用 crypto.subtle.digest 计算哈希值
-    // 仅适用于非安全敏感的场景，例如数据校验。
+    // Step 2: Use crypto.subtle.digest to compute the hash
+    // Suitable only for non-security-sensitive contexts, such as data validation.
     const hashBuffer = await crypto.subtle.digest('MD5', data);
 
-    // 步骤 3: 将 ArrayBuffer 转换为十六进制字符串
+    // Step 3: Convert the ArrayBuffer to a hexadecimal string
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray
-        .map(byte => byte.toString(16).padStart(2, '0')) // 将每个字节转换为两位十六进制字符串
-        .join(''); // 连接成一个完整的十六进制字符串
+        .map(byte => byte.toString(16).padStart(2, '0')) // Convert each byte to a two-digit hexadecimal string
+        .join(''); // Concatenate into a complete hexadecimal string
 
     return hashHex;
 }
-
