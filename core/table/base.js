@@ -17,7 +17,7 @@ const customStyleConfig = {
     basedOn: 'html',
     regex: '/(^[\\s\\S]*$)/g',
     replace: `$1`,
-    replaceDivide: '',  //用于临时保存分离后的css代码
+    replaceDivide: '',  // Used to temporarily store separated CSS code
 }
 
 export class SheetBase {
@@ -25,40 +25,40 @@ export class SheetBase {
     static SheetType = SheetType;
 
     constructor() {
-        // 以下为基本属性
+        // Basic properties below
         this.uid = '';
         this.name = '';
         this.domain = '';
         this.type = SheetType.dynamic;
-        this.enable = true;                     // 用于标记是否启用
-        this.required = false;                  // 用于标记是否必填
-        this.tochat = true;                     // 用于标记是否发送到聊天
-        this.triggerSend = false;               // 用于标记是否触发发送给AI
-        this.triggerSendDeep = 1;               // 用于记录触发发送的深度
+        this.enable = true;                     // Indicates whether enabled
+        this.required = false;                  // Indicates whether required
+        this.tochat = true;                     // Indicates whether sent to chat
+        this.triggerSend = false;               // Indicates whether triggers sending to AI
+        this.triggerSendDeep = 1;               // Records the depth of trigger sending
 
-        // 以下为持久化数据
-        this.cellHistory = [];                  // cellHistory 持久保持，只增不减
-        this.hashSheet = [];                    // 每回合的 hashSheet 结构，用于渲染出表格
+        // Persistent data below
+        this.cellHistory = [];                  // cellHistory is persistently kept, append-only
+        this.hashSheet = [];                    // hashSheet structure per turn, used for rendering the table
 
         this.config = {
-            // 以下为其他的属性
-            toChat: true,                     // 用于标记是否发送到聊天
-            useCustomStyle: false,            // 用于标记是否使用自定义样式
-            triggerSendToChat: false,            // 用于标记是否触发发送到聊天
-            alternateTable: false,            // 用于标记是否该表格是否参与穿插模式，同时可暴露原设定层级
-            insertTable: false,                  // 用于标记是否需要插入表格，默认为false，不插入表格
-            alternateLevel: 0,                     // 用于标记是穿插并到一起,为0表示不穿插，大于0按同层级穿插
-            skipTop: false,                     // 用于标记是否跳过表头
-            selectedCustomStyleKey: '',       // 用于存储选中的自定义样式，当selectedCustomStyleUid没有值时，使用默认样式
-            customStyles: {'自定义样式': {...customStyleConfig}},                 // 用于存储自定义样式
+            // Other properties below
+            toChat: true,                       // Indicates whether sent to chat
+            useCustomStyle: false,              // Indicates whether custom style is used
+            triggerSendToChat: false,           // Indicates whether triggers sending to chat
+            alternateTable: false,              // Indicates whether this table participates in interleaving mode and exposes original setting level
+            insertTable: false,                 // Indicates whether the table needs insertion; default is false (no insertion)
+            alternateLevel: 0,                  // Indicates interleaving level; 0 means no interleaving, >0 means interleaving at the same level
+            skipTop: false,                     // Indicates whether to skip the table header
+            selectedCustomStyleKey: '',         // Stores the selected custom style key; uses default style if selectedCustomStyleUid is empty
+            customStyles: {'Custom Style': {...customStyleConfig}}, // Stores custom styles
         }
 
-        // 临时属性
-        this.tableSheet = [];                        // 用于存储表格数据，以便进行合并和穿插
+        // Temporary properties
+        this.tableSheet = [];                   // Stores table data for merging and interleaving
 
-        // 以下为派生数据
-        this.cells = new Map();                 // cells 在每次 Sheet 初始化时从 cellHistory 加载
-        this.data = new Proxy({}, {     // 用于存储用户自定义的表格数据
+        // Derived data below
+        this.cells = new Map();                 // cells are loaded from cellHistory each time Sheet initializes
+        this.data = new Proxy({}, {             // Stores user-defined table data
             get: (target, prop) => {
                 return this.source.data[prop];
             },
@@ -67,7 +67,7 @@ export class SheetBase {
                 return true;
             },
         });
-        this._cellPositionCacheDirty = true;    // 用于标记是否需要重新计算 sheetCellPosition
+        this._cellPositionCacheDirty = true;    // Indicates whether sheetCellPosition needs recalculation
         this.positionCache = new Proxy(new Map(), {
             get: (map, uid) => {
                 if (this._cellPositionCacheDirty || !map.has(uid)) {
@@ -77,8 +77,8 @@ export class SheetBase {
                             map.set(cellUid, [rowIndex, colIndex]);
                         });
                     });
-                    this._cellPositionCacheDirty = false;   // 更新完成，标记为干净
-                    console.log('重新计算 positionCache: ', map);
+                    this._cellPositionCacheDirty = false;   // Mark as clean after update
+                    console.log('Recalculating positionCache: ', map);
                 }
                 return map.get(uid);
             },
@@ -90,7 +90,7 @@ export class SheetBase {
 
     markPositionCacheDirty() {
         this._cellPositionCacheDirty = true;
-        // console.log(`标记 Sheet: ${this.name} (${this.uid}) 的 positionCache 为脏`);
+        // console.log(`Marking Sheet: ${this.name} (${this.uid}) positionCache as dirty`);
     }
 
     init(column = 2, row = 2) {
@@ -98,7 +98,7 @@ export class SheetBase {
         this.cellHistory = [];
         this.hashSheet = [];
 
-        // 初始化 hashSheet 结构
+        // Initialize hashSheet structure
         const r = Array.from({ length: row }, (_, i) => Array.from({ length: column }, (_, j) => {
             let cell = new Cell(this);
             this.cells.set(cell.uid, cell);
@@ -120,20 +120,20 @@ export class SheetBase {
     rebuildHashSheetByValueSheet(valueSheet) {
         const cols = valueSheet[0].length
         const rows = valueSheet.length
-        const usedCellUids = []; // 跟踪已使用的单元格uid
+        const usedCellUids = []; // Tracks used cell UIDs
         const newHashSheet = Array.from({ length: rows }, (_, i) => Array.from({ length: cols }, (_, j) => {
             const value = valueSheet[i][j] || '';
             const cellType = this.getCellTypeByPosition(i, j);
-            // 如果存在相同值的单元格，则复用该单元格，但排除已使用的单元格
+            // Reuse existing cell with same value if available, excluding already used cells
             const oldCell = this.findCellByValue(valueSheet[i][j] || '', cellType, usedCellUids)
             if (oldCell) {
-                usedCellUids.push(oldCell.uid); // 标记为已使用
-                return oldCell.uid; // 复用已有单元格
+                usedCellUids.push(oldCell.uid); // Mark as used
+                return oldCell.uid; // Reuse existing cell
             }
             const cell = new Cell(this);
             this.cells.set(cell.uid, cell);
             this.cellHistory.push(cell);
-            cell.data.value = valueSheet[i][j] || ''; // 设置单元格的值
+            cell.data.value = valueSheet[i][j] || ''; // Set cell value
             if (i === 0 && j === 0) {
                 cell.type = Cell.CellType.sheet_origin;
             } else if (i === 0) {
@@ -141,7 +141,7 @@ export class SheetBase {
             } else if (j === 0) {
                 cell.type = Cell.CellType.row_header;
             }
-            usedCellUids.push(cell.uid); // 标记新创建的单元格为已使用
+            usedCellUids.push(cell.uid); // Mark newly created cell as used
             return cell.uid;
         }));
         this.hashSheet = newHashSheet
@@ -171,20 +171,20 @@ export class SheetBase {
     }
 
     loadCells() {
-        // 从 cellHistory 遍历加载 Cell 对象
+        // Load Cell objects from cellHistory
         try {
-            this.cells = new Map(); // 初始化 cells Map
-            this.cellHistory?.forEach(c => { // 从 cellHistory 加载 Cell 对象
+            this.cells = new Map(); // Initialize cells Map
+            this.cellHistory?.forEach(c => { // Load Cell objects from cellHistory
                 const cell = new Cell(this);
                 Object.assign(cell, c);
                 this.cells.set(cell.uid, cell);
             });
         } catch (e) {
-            console.error(`加载失败：${e}`);
+            console.error(`Load failed: ${e}`);
             return false;
         }
 
-        // 重新标记cell类型
+        // Reassign cell types
         try {
             if (this.hashSheet && this.hashSheet.length > 0) {
                 this.hashSheet.forEach((rowUids, rowIndex) => {
@@ -193,7 +193,7 @@ export class SheetBase {
                         if (!cell) {
                             cell = new Cell(this);
                             cell.uid = cellUid;
-                            cell.data.value = '空数据'
+                            cell.data.value = 'Empty Data'
                             this.cells.set(cell.uid, cell);
                         }
                         if (rowIndex === 0 && colIndex === 0) {
@@ -209,7 +209,7 @@ export class SheetBase {
                 });
             }
         } catch (e) {
-            console.error(`加载失败：${e}`);
+            console.error(`Load failed: ${e}`);
             return false;
         }
     }
@@ -228,41 +228,41 @@ export class SheetBase {
 
     findCellByPosition(rowIndex, colIndex) {
         if (rowIndex < 0 || colIndex < 0 || rowIndex >= this.hashSheet.length || colIndex >= this.hashSheet[0].length) {
-            console.warn('无效的行列索引');
+            console.warn('Invalid row/column index');
             return null;
         }
         const hash = this.hashSheet[rowIndex][colIndex]
         const target = this.cells.get(hash) || null;
         if (!target) {
             const cell = new Cell(this);
-            cell.data.value = '空数据';
+            cell.data.value = 'Empty Data';
             cell.type = colIndex === 0 ? Cell.CellType.row_header : rowIndex === 0 ? Cell.CellType.column_header : Cell.CellType.cell;
             cell.uid = hash;
             this.cells.set(cell.uid, cell);
             return cell;
         }
-        console.log('找到单元格',target);
+        console.log('Found cell',target);
         return target;
     }
     /**
-     * 通过行号获取行的所有单元格
+     * Get all cells in a row by row index
      * @param {number} rowIndex
      * @returns cell[]
      */
     getCellsByRowIndex(rowIndex) {
         if (rowIndex < 0 || rowIndex >= this.hashSheet.length) {
-            console.warn('无效的行索引');
+            console.warn('Invalid row index');
             return null;
         }
         return this.hashSheet[rowIndex].map(uid => this.cells.get(uid));
     }
     /**
-     * 获取表格csv格式的内容
+     * Get table content in CSV format
      * @returns
      */
-    getSheetCSV( removeHeader = true,key = 'value') {
-        if (this.isEmpty()) return '（此表格当前为空）\n'
-        console.log("测试获取map", this.cells)
+    getSheetCSV( removeHeader = true, key = 'value') {
+        if (this.isEmpty()) return '（This table is currently empty）\n'
+        console.log("Testing map retrieval", this.cells)
         const content = this.hashSheet.slice(removeHeader?1:0).map((row, index) => row.map(cellUid => {
             const cell = this.cells.get(cellUid)
             if (!cell) return ""
@@ -271,8 +271,8 @@ export class SheetBase {
         return content + "\n";
     }
     /**
-     * 表格是否为空
-     * @returns 是否为空
+     * Check if table is empty
+     * @returns {boolean} whether empty
      */
     isEmpty() {
         return this.hashSheet.length <= 1;
@@ -287,8 +287,8 @@ export class SheetBase {
     }
 
     /**
-     * 获取表头数组（兼容旧数据）
-     * @returns {string[]} 表头数组
+     * Get header array (backward-compatible with old data)
+     * @returns {string[]} header array
      */
     getHeader() {
         const header = this.hashSheet[0].slice(1).map(cellUid => {
