@@ -1,25 +1,23 @@
-
-
-// 手动定义当前文件的相对路径
+// Manually define the relative path of the current file
 const ROOT_TO_THIS_FILE_PATH = './utils/utility.js';
 
 export function getRelativePositionOfCurrentCode(deep = 1){
     const currentFileAbsolutePath = getStackTracePath(0);
-    // 从堆栈中获取使用此函数的文件名和行号
+    // Get the filename and line number of the file using this function from the stack trace
     const targetAbsolutePath = getStackTracePath(deep);
 
-    // 使用正则表达式移除 targetAbsolutePath 末尾的 :行号:列号 部分
+    // Use a regular expression to remove the trailing :line:column part from targetAbsolutePath
     const cleanTargetAbsolutePath = targetAbsolutePath.replace(/:(\d+):(\d+)$/, '');
 
-    // 获取根目录绝对路径
+    // Get the absolute path of the root directory
     const rootDirectoryAbsolutePath = getRootDirectoryAbsolutePath(currentFileAbsolutePath);
-    const targetBiasWithRoot = compareRelativePath(rootDirectoryAbsolutePath, targetAbsolutePath); // 仍然使用包含行号的 targetAbsolutePath 来计算相对路径
-    // 获取目标文件代码在文件中的位置
+    const targetBiasWithRoot = compareRelativePath(rootDirectoryAbsolutePath, targetAbsolutePath); // Still use targetAbsolutePath with line/column to compute the relative path
+    // Get the position of the target code within the file
     const targetCodePosition = getTargetCodePosition(targetAbsolutePath);
 
     const r = {
-        codeAbsolutePath: targetAbsolutePath, // 使用清理后的绝对路径
-        codeFileAbsolutePath: cleanTargetAbsolutePath, // 使用清理后的绝对路径
+        codeAbsolutePath: targetAbsolutePath, // Use the cleaned absolute path
+        codeFileAbsolutePath: cleanTargetAbsolutePath, // Use the cleaned absolute path
         codeFileRelativePathWithRoot: `./${targetBiasWithRoot}`,
         codePositionInFile: targetCodePosition
     }
@@ -44,16 +42,16 @@ export function getRootDirectoryAbsolutePath(absoluteFilePath) {
     try {
         const url = new URL(absoluteFilePath);
         const pathname = url.pathname;
-        let pathSegments = pathname.split('/').filter(Boolean); // 获取路径段数组
+        let pathSegments = pathname.split('/').filter(Boolean); // Get the array of path segments
 
         const relativePathSegments = ROOT_TO_THIS_FILE_PATH.split('/').filter(Boolean);
-        // 移除 ROOT_TO_THIS_FILE_PATH 中文件名部分，只保留目录部分
-        relativePathSegments.pop(); // 假设最后一个是文件名
+        // Remove the filename part from ROOT_TO_THIS_FILE_PATH, keeping only the directory part
+        relativePathSegments.pop(); // Assume the last segment is the filename
 
-        // 计算需要向上回溯的目录层级
+        // Calculate how many directory levels to go up
         const upLevels = relativePathSegments.length;
 
-        // 从 pathSegments 尾部移除相应数量的目录段，得到根目录的路径段
+        // Remove the corresponding number of directory segments from the end of pathSegments to get the root directory path segments
         pathSegments = pathSegments.slice(0, pathSegments.length - upLevels);
 
         const rootPath = '/' + pathSegments.join('/');
@@ -73,25 +71,25 @@ export function getStackTracePath(location = 0) {
 
 export function extractPath(filePath) {
     if (!filePath) {
-        return null; // 或者 "", 根据你的需求处理空输入
+        return null; // or "", based on your handling of empty input
     }
     const match = filePath.match(/\((https?:\/\/[^\)]+)\)/);
     if (match && match[1]) {
         return match[1];
     }
-    return null; // 或者 "", 如果没有找到匹配的路径
+    return null; // or "", if no matching path is found
 }
 
 export function compareRelativePath(from, to) {
-    // 1. 解析URL并提取路径，去除行号列号
-    const fromPath = new URL(from).pathname.split(':')[0]; // 移除 ':行号:列号' 部分
+    // 1. Parse URLs and extract paths, removing line/column numbers
+    const fromPath = new URL(from).pathname.split(':')[0]; // Remove the ':line:column' part
     const toPath = new URL(to).pathname.split(':')[0];
 
-    // 2. 分割路径
-    const fromSegments = fromPath.split('/').filter(Boolean); // filter(Boolean) 移除空字符串
+    // 2. Split paths into segments
+    const fromSegments = fromPath.split('/').filter(Boolean); // filter(Boolean) removes empty strings
     const toSegments = toPath.split('/').filter(Boolean);
 
-    // 3. 找出共同路径前缀的长度
+    // 3. Find the length of the common path prefix
     let commonPrefixLength = 0;
     while (
         commonPrefixLength < fromSegments.length &&
@@ -101,32 +99,31 @@ export function compareRelativePath(from, to) {
         commonPrefixLength++;
     }
 
-    // 4. 构建相对路径
-    // const upLevels = fromSegments.length - commonPrefixLength; // 原始计算方式
-    const upLevels = Math.max(0, fromSegments.length - commonPrefixLength - 1); // 修正后的计算方式
+    // 4. Construct the relative path
+    // const upLevels = fromSegments.length - commonPrefixLength; // Original calculation
+    const upLevels = Math.max(0, fromSegments.length - commonPrefixLength - 1); // Corrected calculation
     const relativeSegments = [];
 
-    // 添加向上返回的 '..'
+    // Add '..' for each level to go up
     for (let i = 0; i < upLevels; i++) {
         relativeSegments.push('..');
     }
 
-    // 添加目标路径中，除去共同前缀后的剩余部分
+    // Add the remaining parts of the target path after the common prefix
     for (let i = commonPrefixLength; i < toSegments.length; i++) {
         relativeSegments.push(toSegments[i]);
     }
 
-    // 如果相对路径为空，表示在同一目录下，返回 './' 或者文件名
+    // If the relative path is empty, it means both paths are in the same directory; return './' or the filename
     if (relativeSegments.length === 0) {
         const fromFilename = fromSegments[fromSegments.length - 1];
         const toFilename = toSegments[toSegments.length - 1];
         if (fromFilename === toFilename) {
-            return './'; // 两个路径完全相同
+            return './'; // Both paths are identical
         } else {
-            return './' + toFilename; // 同目录下，但文件名不同，返回 './文件名'
+            return './' + toFilename; // Same directory, different filenames, return './filename'
         }
     }
 
     return relativeSegments.join('/');
 }
-
