@@ -2,11 +2,11 @@
 <div class="wide100p padding5 dataBankAttachments" id="table_manager_container">
     <!--    <h2 class="marginBot5">-->
     <!--        <span>-->
-    <!--            数据表-->
+    <!--            Data Table-->
     <!--        </span>-->
     <!--    </h2>-->
     <small data-i18n="managerDescription">
-        这是用于储存数据的表格。正常进行对话即可，默认无需进行任何操作即可自动更新表格。下方的"总结/整理"和"立即填表"仅为辅助手段。
+        This is a table for storing data. Simply continue your conversation normally—the table will update automatically without requiring any manual action. The "Summarize/Organize" and "Fill Table Now" buttons below are provided only as auxiliary tools.
     </small>
     <div id="tableEditTips"></div>
     <hr />
@@ -14,63 +14,63 @@
         <div style=" display: flex; justify-content: flex-start; flex-wrap: wrap; width: fit-content; gap: 4px;">
             <!--            <div style="display: flex; justify-content: center;">-->
             <!--                <select id="table_refresh_type_selector" class="text_pole" style="height: 30px; width: 200px;">-->
-            <!--                    <option value="">~~~看到这个选项说明出问题了~~~~</option>-->
+            <!--                    <option value="">~~~Seeing this option means something went wrong~~~~</option>-->
             <!--                </select>-->
             <!--            </div>-->
             <!--            <div style="display: flex; justify-content: center;" id="table_edit_mode_button">-->
-            <!--                <i class="menu_button menu_button_icon fa-solid fa-pen" style="height: 30px; width: 30px" title="批量编辑"></i>-->
+            <!--                <i class="menu_button menu_button_icon fa-solid fa-pen" style="height: 30px; width: 30px" title="Batch Edit"></i>-->
             <!--            </div>-->
-            <div style="display: flex; justify-content: center" id="table_data_statistics_button" title="查看表格数据统计"
+            <div style="display: flex; justify-content: center" id="table_data_statistics_button" title="View table data statistics"
                 data-i18n="[title]View table data statistics">
                 <i class="menu_button menu_button_icon fa-solid fa-ranking-star" style="height: 30px; width: 30px"></i>
             </div>
-            <div style="display: flex; justify-content: center" id="dataTable_history_button" title="查看表格编辑历史记录"
+            <div style="display: flex; justify-content: center" id="dataTable_history_button" title="View table edit history"
                 data-i18n="[title]View table edit history">
                 <i class="menu_button menu_button_icon fa-solid fa-history" style="height: 30px; width: 30px"></i>
             </div>
-            <div style="display: flex; justify-content: center" id="table_undo" title="恢复表格"
+            <div style="display: flex; justify-content: center" id="table_undo" title="Restore table"
                 data-i18n="[title]Completely rebuild table">
                 <i class="menu_button menu_button_icon fa-solid fa-undo" style="height: 30px; width: 30px"></i>
             </div>
-            <div style="display: flex; justify-content: center" id="table_rebuild_button" title="表格总结"
+            <div style="display: flex; justify-content: center" id="table_rebuild_button" title="Table summary"
                 data-i18n="[title]Completely rebuild table">
-                <i class="menu_button menu_button_icon fa-solid fa-repeat">表格整理</i>
+                <i class="menu_button menu_button_icon fa-solid fa-repeat">Organize Table</i>
             </div>
 
             <!--            <div style="display: flex; justify-content: center;" id="paste_table_button">-->
-            <!--                <i class="menu_button menu_button_icon fa-solid fa-paste" style="height: 30px; width: 30px" title="粘贴表格"></i>-->
+            <!--                <i class="menu_button menu_button_icon fa-solid fa-paste" style="height: 30px; width: 30px" title="Paste Table"></i>-->
             <!--            </div>-->
             <!-- <div style="display: flex; justify-content: center;" id="table_clear_up_button">
-                <i class="menu_button menu_button_icon fa-solid fa-broom" style="height: 30px; width: 30px" title="整理表格（可以从插件界面更改设置）"></i>
+                <i class="menu_button menu_button_icon fa-solid fa-broom" style="height: 30px; width: 30px" title="Organize table (settings can be changed from the plugin interface)"></i>
             </div> -->
         </div>
         <div style=" display: flex; justify-content: flex-end; flex-wrap: wrap; width: fit-content; gap: 4px;">
             <div style="display: flex; justify-content: center" id="copy_table_button">
-                <i class="menu_button menu_button_icon fa-solid fa-copy" style="height: 30px; width: 30px" title="复制表格"
+                <i class="menu_button menu_button_icon fa-solid fa-copy" style="height: 30px; width: 30px" title="Copy table"
                     data-i18n="[title]Copy table"></i>
             </div>
             <div style="display: flex; justify-content: center" id="import_table_button">
                 <i class="menu_button menu_button_icon fa-solid fa-file-import" style="height: 30px; width: 30px"
-                    title="导入表格" data-i18n="[title]Import table"></i>
+                    title="Import table" data-i18n="[title]Import table"></i>
             </div>
             <div style="display: flex; justify-content: center" id="export_table_button">
                 <i class="menu_button menu_button_icon fa-solid fa-file-export" style="height: 30px; width: 30px"
-                    title="导出表格" data-i18n="[title]Export table"></i>
+                    title="Export table" data-i18n="[title]Export table"></i>
             </div>
             <div style="display: flex; justify-content: center" id="clear_table_button">
                 <i class="menu_button menu_button_icon fa-solid fa-trash-can redWarningBG"
-                    style="height: 30px; width: 30px" title="清空表格" data-i18n="[title]Clear table"></i>
+                    style="height: 30px; width: 30px" title="Clear table" data-i18n="[title]Clear table"></i>
             </div>
         </div>
     </div>
     <hr />
     <div style="display: flex; justify-content: space-between; ">
-        <div style="display: flex; justify-content: center" id="table_prev_button" title="前表">
-            <i class="menu_button menu_button_icon fa-solid">&lt; 前表</i>
+        <div style="display: flex; justify-content: center" id="table_prev_button" title="Previous table">
+            <i class="menu_button menu_button_icon fa-solid">< Previous Table</i>
         </div>
-        <div id="table_indicator">现在是最新表格</div>
-        <div style="display: flex; justify-content: center" id="table_next_button" title="后表">
-            <i class="menu_button menu_button_icon fa-solid">后表 &gt;</i>
+        <div id="table_indicator">Currently on the latest table</div>
+        <div style="display: flex; justify-content: center" id="table_next_button" title="Next table">
+            <i class="menu_button menu_button_icon fa-solid">Next Table ></i>
         </div>
     </div>
     <hr />
