@@ -27,24 +27,6 @@
 </p>
 
 <p>
-    <a href="https://github.com/muyoou/st-memory-enhancement/stargazers">
-        <img src="https://img.shields.io/github/stars/muyoou/st-memory-enhancement?style=flat-square" alt="GitHub Stars">
-    </a>
-    <a href="https://github.com/muyoou/st-memory-enhancement/graphs/contributors">
-        <img src="https://img.shields.io/github/contributors/muyoou/st-memory-enhancement?style=flat-square" alt="Contributors">
-    </a>
-    <a href="https://github.com/muyoou/st-memory-enhancement/issues">
-        <img src="https://img.shields.io/github/issues/muyoou/st-memory-enhancement?style=flat-square" alt="GitHub Issues">
-    </a>
-    <a href="https://qm.qq.com/q/bBSIrwKty2">
-      <img src="https://img.shields.io/badge/Join-QQ_Group-ff69b4">
-    </a>
-    <a href="https://github.com/SillyTavern/SillyTavern">
-      <img src="https://img.shields.io/badge/SillyTavern-%3E=1.10.0-blue">
-    </a>
-</p>
-
-<p>
     <b>🚀 Latest Version: v2.0.3 🚀</b>
 </p>
 </div>
@@ -78,21 +60,3 @@ The Memory Enhancement Plugin injects powerful **structured long-term memory** i
 1. **Install the Plugin:** In the SillyTavern interface, click `Extensions` > `Install Extension`.
 
 2. **Enter the Plugin URL:** In the popup window, enter the GitHub URL `https://github.com/Nidelon/st-memory-enhancement`, then select `Install for all users`.
-
-## 🥰 Contributors
-
-Thanks to all the amazing people who have contributed to this project!
-
-<p align="center">
-    <a href="https://github.com/muyoou/st-memory-enhancement/graphs/contributors">
-      <img src="https://contrib.rocks/image?repo=muyoou/st-memory-enhancement" style="max-width: 400px;" />
-    </a>
-</p>
-
-**Dev Branch Contribution Stats:**
-
-<p align="center">
-    <img src="https://repobeats.axiom.co/api/embed/eb3c2af1bcdb84704bb9ff8f61379fe38d634884.svg" alt="Dev Branch Code Analytics" style="max-width: 80%; border-radius: 5px;">
-</p>
-
-## 🤗 Thanks to Everyone for Your Support and Usage
