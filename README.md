@@ -1,5 +1,17 @@
 <div align="center">
-<h1>I just decided to do a full translation into English. I have no idea how stable everything is. I tried it, it seems to work.<h1>
+  <p>
+    <b>🌐 Original Repository:</b> 
+    <a href="https://github.com/muyoou/st-memory-enhancement">
+      github.com/muyoou/st-memory-enhancement
+    </a>
+  </p>
+  <h3>
+    I just decided to do a full translation into English. I have no idea how stable everything is — I tried it, and it seems to work.
+  </h3>
+</div>
+
+<div align="center">
+
 <h1>✨ SillyTavern Memory Enhancement Plugin ✨</h1>
 
 <p>
