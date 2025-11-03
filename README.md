@@ -6,7 +6,7 @@
     </a>
   </p>
   <h3>
-    I just decided to do a full translation into English. I have no idea how stable everything is — I tried it, and it seems to work.
+    I just decided to do a full translation into English. I have no idea how stable everything is - I tried it, and it seems to work.
   </h3>
 </div>
 
