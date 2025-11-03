@@ -5,11 +5,11 @@ import { initializeText, parseSheetRender, loadValueSheetBySheetHashSheet } from
 let elements = null;
 let templateInstance = null;
 
-// 默认样式配置
+// Default style configuration
 const DEFAULT_STYLE = { mode: 'regex', basedOn: 'html', regex: '.*', replace: '' };
 
 /**
- * DOM 元素工具函数
+ * DOM element utility functions
  */
 const dom = {
     setValue: (element, value) => element.get(0).value = value,
@@ -31,11 +31,11 @@ const dom = {
 };
 
 /**
- * 统一的编辑器刷新方法
+ * Unified editor refresh method
  */
 function refreshEditor() {
-    // console.log("refreshEditor-elements.rendererDisplay 是否存在:", !!elements.rendererDisplay);
-    // console.log("jQuery 对象长度:", elements.rendererDisplay?.length || 0);
+    // console.log("refreshEditor-elements.rendererDisplay exists:", !!elements.rendererDisplay);
+    // console.log("jQuery object length:", elements.rendererDisplay?.length || 0);
     renderHTML();
     updateGuideContent(elements, dom.getValue(elements.matchMethod) === 'regex');
     dom.toggleVisibility(elements.table_renderer_display_container, dom.isChecked(elements.tablePreviewButton));
@@ -44,9 +44,9 @@ function refreshEditor() {
 
 // function renderHTML() {
 //     const currentConfig = collectConfigThenUpdateTemplate();
-//     console.log("测试", currentConfig, templateInstance)
+//     console.log("Test", currentConfig, templateInstance)
 //     if (currentConfig.useCustomStyle === true) {
-//         templateInstance.tableSheet = loadValueSheetBySheetHashSheet(templateInstance);  //修改后的渲染逻辑为渲染tableSheet
+//         templateInstance.tableSheet = loadValueSheetBySheetHashSheet(templateInstance);  // Modified rendering logic to render tableSheet
 //         elements.rendererDisplay.html(parseSheetRender(templateInstance, currentConfig));
 //     } else {
 //         elements.rendererDisplay.html(templateInstance.element);
@@ -55,7 +55,7 @@ function refreshEditor() {
 // }
 
 /**
- * 渲染HTML,修复在HTML包含<script>标签时jQuery内部处理异常
+ * Render HTML, fixing jQuery's internal exception when HTML contains <script> tags
  */
 function renderHTML() {
     const currentConfig = collectConfigThenUpdateTemplate();
@@ -64,16 +64,16 @@ function renderHTML() {
     let renderedHTML = currentConfig.useCustomStyle
         ? parseSheetRender(templateInstance, currentConfig)
         : templateInstance.element;
-    // 当返回为替换后的string时，移除所有<script>标签；否则返回的将是数组无需处理
-    renderedHTML = typeof renderedHTML === 'string' ? renderedHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, ''): renderedHTML;
+    // When returning a replaced string, remove all <script> tags; otherwise, if it returns an array, no processing is needed
+    renderedHTML = typeof renderedHTML === 'string' ? renderedHTML.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '') : renderedHTML;
 
-    // 改用原生方法插入
+    // Use native method to insert
     elements.rendererDisplay[0].innerHTML = renderedHTML;
     elements.rendererDisplay.css('white-space', 'pre-wrap');
 }
 /**
- * 获取UI元素绑定对象
- * @param {Object} $dlg jQuery对象
+ * Get UI element binding object
+ * @param {Object} $dlg jQuery object
  */
 async function getUIElements($dlg) {
     return {
@@ -107,18 +107,18 @@ async function getUIElements($dlg) {
 }
 
 /**
- * 更新指南内容
+ * Update guide content
  */
 function updateGuideContent(elements, isRegex) {
     dom.toggleVisibility(elements.match_method_regex_container, isRegex);
     elements.push_to_chat_style_edit_guide_content.html(isRegex
-        ? `支持标准的正则表达式语法,使用<cycleDivide></cycleDivide>包裹局部代码可以实现局部循环，例如用于折叠道具、任务等。`
-        : `当样式内容为空时默认显示原始表格。支持HTML、CSS定义结构样式，并使用<code>\\$\\w\\s+</code>的方式定位单元格。<br>例如<code>$A0</code>代表第1列第1行(表头)，<code>$A1</code>代表第1列第2行(表内容第一行)。`
+        ? `Supports standard regular expression syntax. Wrapping partial code with <cycleDivide></cycleDivide> enables local looping—for example, to collapse items, quests, etc.`
+        : `When the style content is empty, the original table is displayed by default. Supports defining structure and styling using HTML and CSS, and locating cells using <code>\\$\\w\\s+</code>.<br>For example, <code>$A0</code> refers to column 1, row 1 (header), and <code>$A1</code> refers to column 1, row 2 (first data row).`
     );
 }
 
 /**
- * 获取当前选中样式
+ * Get currently selected style
  */
 function getCurrentSelectedStyle() {
     if (!templateInstance.config.customStyles || Object.keys(templateInstance.config.customStyles).length === 0) {
@@ -130,7 +130,7 @@ function getCurrentSelectedStyle() {
 }
 
 /**
- * 获取当前UI表单数据
+ * Get current UI form data
  */
 function getFormData() {
     return {
@@ -142,7 +142,7 @@ function getFormData() {
 }
 
 /**
- * 设置表单数据
+ * Set form data
  */
 function setFormData(style = {}) {
     const data = { ...DEFAULT_STYLE, ...style };
@@ -153,27 +153,27 @@ function setFormData(style = {}) {
 }
 
 /**
- * 初始化表格样式预览
+ * Initialize table style preview
  */
 function setupSheetPreview() {
     if (!templateInstance) {
-        console.warn("setupSheetPreview: 未能获取到有效的 table 对象。");
+        console.warn("setupSheetPreview: Failed to obtain a valid table object.");
         return;
     }
 
-    // 初始化样式预览表格
+    // Initialize style preview table
     templateInstance.element = null
     templateInstance.element = `<div class="justifyLeft scrollable">${templateInstance.renderSheet((cell) => {
         cell.element.style.cursor = 'default';
     }).outerHTML}</div>`;
-    // console.log("setupSheetPreview-elements.rendererDisplay 是否存在:", !!elements.rendererDisplay);
-    // console.log("jQuery 对象长度:", elements.rendererDisplay?.length || 0);
+    // console.log("setupSheetPreview-elements.rendererDisplay exists:", !!elements.rendererDisplay);
+    // console.log("jQuery object length:", elements.rendererDisplay?.length || 0);
     renderHTML();
     dom.toggleVisibility(elements.table_renderer_display_container, false);
 }
 
 /**
- * 从UI收集配置
+ * Collect configuration from UI
  */
 function collectConfigThenUpdateTemplate() {
     const selectedKey = dom.getValue(elements.presetStyle);
@@ -200,7 +200,7 @@ function collectConfigThenUpdateTemplate() {
 }
 
 /**
- * 渲染预览
+ * Render preview
  */
 function renderPreview() {
     try {
@@ -218,10 +218,10 @@ function renderPreview() {
 }
 
 /**
- * 初始化UI值
+ * Initialize UI values
  */
 function initUIValues() {
-    // 初始化复选框
+    // Initialize checkboxes
     dom.setChecked(elements.tableToChatButton, templateInstance.config.toChat !== false);
     dom.setChecked(elements.tableStyleButton, templateInstance.config.useCustomStyle !== false);
     dom.setChecked(elements.triggerSendToChatButton, templateInstance.config.triggerSendToChat !== false);
@@ -235,19 +235,19 @@ function initUIValues() {
 }
 
 /**
- * 初始化预设样式下拉框
+ * Initialize preset style dropdown
  */
 function initPresetStyleDropdown() {
     const presetDropdown = elements.presetStyle;
     presetDropdown.empty();
 
     if (templateInstance.config.customStyles && Object.keys(templateInstance.config.customStyles).length > 0) {
-        // 添加所有自定义样式
+        // Add all custom styles
         Object.keys(templateInstance.config.customStyles).forEach(styleName => {
             dom.addOption(presetDropdown, styleName);
         });
 
-        // 设置选中项
+        // Set selected item
         if (templateInstance.config.selectedCustomStyleKey && templateInstance.config.customStyles[templateInstance.config.selectedCustomStyleKey]) {
             dom.setValue(presetDropdown, templateInstance.config.selectedCustomStyleKey);
         } else {
@@ -256,22 +256,22 @@ function initPresetStyleDropdown() {
             templateInstance.config.selectedCustomStyleKey = firstStyleKey;
         }
     } else {
-        dom.addOption(presetDropdown, 'default', '默认');
+        dom.addOption(presetDropdown, 'default', 'Default');
     }
 }
 
 /**
- * 绑定所有事件处理程序
+ * Bind all event handlers
  */
 function bindEvents() {
-    // 绑定基本输入元素事件
+    // Bind basic input element events
     ['input', 'input', 'change', 'change', 'change', 'change'].forEach((eventType, i) => {
         [elements.regex, elements.replace, elements.tablePreviewButton,
         elements.matchMethod, elements.benchmark, elements.tableStyleButton][i]
             .get(0).addEventListener(eventType, refreshEditor);
     });
 
-    // 预设样式切换事件
+    // Preset style change event
     elements.presetStyle.get(0).addEventListener('change', function (event) {
         const selectedKey = event.target.value;
         const selectedStyle = templateInstance.config.customStyles[selectedKey];
@@ -286,12 +286,12 @@ function bindEvents() {
 }
 
 /**
- * 绑定样式管理按钮事件
+ * Bind style management button events
  */
 function bindStyleManagementEvents() {
-    // 添加样式
+    // Add style
     elements.addStyleButton.get(0).addEventListener('click', async function () {
-        const styleName = await EDITOR.callGenericPopup("输入新样式名称：", EDITOR.POPUP_TYPE.INPUT);
+        const styleName = await EDITOR.callGenericPopup("Enter new style name:", EDITOR.POPUP_TYPE.INPUT);
         if (!styleName) return;
 
         templateInstance.config.customStyles = templateInstance.config.customStyles || {};
@@ -301,33 +301,33 @@ function bindStyleManagementEvents() {
         dom.triggerEvent(elements.presetStyle, 'change');
     });
 
-    // 编辑样式名称
+    // Edit style name
     elements.editStyleButton.get(0).addEventListener('click', async function () {
         const selectedKey = dom.getValue(elements.presetStyle);
         if (selectedKey === 'default' || !templateInstance.config.customStyles[selectedKey]) return;
 
-        const newName = await EDITOR.callGenericPopup("修改样式名称：", EDITOR.POPUP_TYPE.INPUT, selectedKey);
+        const newName = await EDITOR.callGenericPopup("Modify style name:", EDITOR.POPUP_TYPE.INPUT, selectedKey);
         if (!newName || newName === selectedKey) return;
 
-        // 重命名样式
+        // Rename style
         templateInstance.config.customStyles[newName] = templateInstance.config.customStyles[selectedKey];
         delete templateInstance.config.customStyles[selectedKey];
 
-        // 更新下拉菜单
+        // Update dropdown
         const option = elements.presetStyle.find(`option[value="${selectedKey}"]`).get(0);
         option.text = newName;
         option.value = newName;
         dom.setValue(elements.presetStyle, newName);
     });
 
-    // 删除样式
+    // Delete style
     elements.deleteStyleButton.get(0).addEventListener('click', async function () {
         const selectedKey = dom.getValue(elements.presetStyle);
         if (selectedKey === 'default') {
-            return EDITOR.error('不能删除默认样式');
+            return EDITOR.error('Cannot delete default style');
         }
 
-        const confirmation = await EDITOR.callGenericPopup("确定要删除此样式吗？", EDITOR.POPUP_TYPE.CONFIRM);
+        const confirmation = await EDITOR.callGenericPopup("Are you sure you want to delete this style?", EDITOR.POPUP_TYPE.CONFIRM);
         if (!confirmation) return;
 
         delete templateInstance.config.customStyles[selectedKey];
@@ -336,16 +336,16 @@ function bindStyleManagementEvents() {
         dom.triggerEvent(elements.presetStyle, 'change');
     });
 
-    // 导入样式
+    // Import style
     elements.importStyleButton.get(0).addEventListener('click', async function () {
-        const importData = await EDITOR.callGenericPopup("粘贴样式配置JSON：", EDITOR.POPUP_TYPE.INPUT, '', { rows: 10 });
+        const importData = await EDITOR.callGenericPopup("Paste style configuration JSON:", EDITOR.POPUP_TYPE.INPUT, '', { rows: 10 });
         if (!importData) return;
 
         try {
             const styleData = JSON.parse(importData);
-            const styleName = styleData.name || "导入样式";
+            const styleName = styleData.name || "Imported Style";
 
-            // 移除不需要的属性
+            // Remove unnecessary properties
             delete styleData.name;
             delete styleData.uid;
 
@@ -356,35 +356,35 @@ function bindStyleManagementEvents() {
             dom.setValue(elements.presetStyle, styleName);
             dom.triggerEvent(elements.presetStyle, 'change');
 
-            EDITOR.success('导入样式成功');
+            EDITOR.success('Style imported successfully');
         } catch (e) {
-            EDITOR.error('导入样式失败，JSON格式错误', e.message, e);
+            EDITOR.error('Style import failed: invalid JSON format', e.message, e);
         }
     });
 
-    // 导出样式
+    // Export style
     elements.exportStyleButton.get(0).addEventListener('click', function () {
         const selectedKey = dom.getValue(elements.presetStyle);
         if (selectedKey === 'default' || !templateInstance.config.customStyles[selectedKey]) return;
 
         const exportData = { ...templateInstance.config.customStyles[selectedKey], name: selectedKey };
         navigator.clipboard.writeText(JSON.stringify(exportData, null, 2))
-            .then(() => EDITOR.success('样式已复制到剪贴板'));
+            .then(() => EDITOR.success('Style copied to clipboard'));
     });
 }
 
 /**
- * 绑定预览和复制按钮事件
+ * Bind preview and copy button events
  */
 function bindPreviewAndCopyEvents() {
-    // 预览按钮
+    // Preview button
     elements.previewStyleButton.get(0).addEventListener('click', async () => {
         const currentConfig = collectConfigThenUpdateTemplate();
         const selectedStyle = currentConfig.customStyles[currentConfig.selectedCustomStyleKey];
         const initialText = initializeText(templateInstance, selectedStyle);
         const benchmarkValue = dom.getValue(elements.benchmark);
 
-        // 创建选择器选项
+        // Create selector options
         const benchmarkOptions = Array.from(elements.benchmark.get(0).options)
             .map(option => `<option value="${option.value}" ${option.value === benchmarkValue ? 'selected' : ''}>${option.text}</option>`)
             .join('');
@@ -392,7 +392,7 @@ function bindPreviewAndCopyEvents() {
         const previewHtml = `
             <div>
                 <div style="margin-bottom: 10px; display: flex; align-items: center;">
-                    <span style="margin-right: 10px;">基于:</span>
+                    <span style="margin-right: 10px;">Based on:</span>
                     <select id="preview_benchmark_selector" style="min-width: 100px">${benchmarkOptions}</select>
                 </div>
                 <textarea id="table_to_chat_text_preview" rows="10" style="width: 100%">${initialText}</textarea>
@@ -414,14 +414,14 @@ function bindPreviewAndCopyEvents() {
         }, 0);
     });
 
-    // 复制按钮
+    // Copy button
     elements.copyTextButton.get(0).addEventListener('click', () =>
         navigator.clipboard.writeText(elements.rendererDisplay.html())
-            .then(() => EDITOR.success('HTML内容已复制到剪贴板')));
+            .then(() => EDITOR.success('HTML content copied to clipboard')));
 }
 
 /**
- * 初始化编辑器组件和值
+ * Initialize editor components and values
  */
 async function initializeEditor() {
     initUIValues();
@@ -435,39 +435,39 @@ async function initializeEditor() {
 }
 
 /**
- * 打开表格样式渲染器弹窗
- * @param {Object} originInstance 原始表格对象
- * @returns {Promise<Object>} 处理结果
+ * Open table style renderer popup
+ * @param {Object} originInstance Original table object
+ * @returns {Promise<Object>} Processing result
  */
 export async function openSheetStyleRendererPopup(originInstance) {
-    // 初始化弹窗
+    // Initialize popup
     const manager = await SYSTEM.getTemplate('customSheetStyle');
-    const tableRendererPopup = new EDITOR.Popup(manager, EDITOR.POPUP_TYPE.CONFIRM, '', { large: true, wide: true, allowVerticalScrolling: true, okButton: "保存修改", cancelButton: "取消" });
+    const tableRendererPopup = new EDITOR.Popup(manager, EDITOR.POPUP_TYPE.CONFIRM, '', { large: true, wide: true, allowVerticalScrolling: true, okButton: "Save Changes", cancelButton: "Cancel" });
     const $dlg = $(tableRendererPopup.dlg);
     templateInstance = originInstance;
 
-    // 初始化
+    // Initialize
     elements = await getUIElements($dlg);
     await initializeEditor();
     bindEvents();
 
-    // 显示弹窗并处理结果
+    // Show popup and handle result
     await tableRendererPopup.show();
 
     if (tableRendererPopup.result) {
         const finalConfig = collectConfigThenUpdateTemplate();
         const alternateLevel = Number(finalConfig.alternateLevel);
         const styleBasedOn = ["html", "csv", "json", "array"];
-        const numberBoollen = isNaN(alternateLevel) || alternateLevel < 0 || Number.isInteger(alternateLevel) === false;  //是否满足非负整数
-        const styleBoollen = styleBasedOn.includes(finalConfig.customStyles[finalConfig.selectedCustomStyleKey].basedOn);      //方式必须为html、csv、json、array
-        if (numberBoollen || (alternateLevel > 0 && !styleBoollen)) {     //输入的插入层级必须为非负整数，且不能为MarkDown格式否则改为0
+        const numberBoollen = isNaN(alternateLevel) || alternateLevel < 0 || Number.isInteger(alternateLevel) === false;  // Whether it satisfies non-negative integer
+        const styleBoollen = styleBasedOn.includes(finalConfig.customStyles[finalConfig.selectedCustomStyleKey].basedOn);      // Format must be html, csv, json, or array
+        if (numberBoollen || (alternateLevel > 0 && !styleBoollen)) {     // Insertion level must be a non-negative integer and cannot be Markdown format; otherwise, force it to 0
             finalConfig.alternateLevel = 0;
-            EDITOR.warning('穿插层级必须为非负整数，且不能为MarkDown格式，否则强制改为0');
+            EDITOR.warning('Insertion level must be a non-negative integer and cannot be in Markdown format; it has been reset to 0');
         }
         Object.assign(originInstance.config, finalConfig);
-        console.log('表格样式已更新', originInstance.config.alternateLevel);
+        console.log('Table style updated', originInstance.config.alternateLevel);
         originInstance.save();
         BASE.updateSystemMessageTableStatus()
-        EDITOR.success('表格样式已更新');
+        EDITOR.success('Table style updated');
     }
 }
