@@ -2,7 +2,7 @@ import {DERIVED, EDITOR, SYSTEM, USER} from "../../core/manager.js";
 import {getChatSheetsView} from "../editor/chatSheetsDataView.js";
 import {getEditView, updateTableContainerPosition} from "../editor/tableTemplateEditView.js";
 
-// 全局变量定义 (保持不变)
+// Global variable definitions (unchanged)
 let tableDrawer = null;
 let tableDrawerIcon = null;
 let tableDrawerContent = null;
@@ -17,7 +17,7 @@ let tableViewDom = null;
 let tableEditDom = null;
 let settingContainer = null;
 
-// 新增：缓存内容容器的 jQuery 对象
+// New: Cache jQuery objects for content containers
 let databaseContentDiv = null;
 let editorContentDiv = null;
 let settingContentDiv = null;
@@ -29,8 +29,8 @@ let isEventListenersBound = false;
 let currentActiveButton = null; // Track currently active button
 
 /**
- * 更新按钮选中状态 (保持不变)
- * @param {jQuery} selectedButton 当前选中的按钮
+ * Update button selection states (unchanged)
+ * @param {jQuery} selectedButton The currently selected button
  */
 function updateButtonStates(selectedButton) {
     if (currentActiveButton && currentActiveButton.is(selectedButton)) {
@@ -45,14 +45,14 @@ function updateButtonStates(selectedButton) {
 }
 
 /**
- * 初始化应用头部表格抽屉 (只调用一次)
+ * Initialize the application header table drawer (called only once)
  */
 export async function initAppHeaderTableDrawer() {
     if (isEventListenersBound) {
         return;
     }
 
-    // DOM 元素选择 (只执行一次)
+    // DOM element selection (executed only once)
     tableDrawer = $('#table_database_settings_drawer');
     tableDrawerIcon = $('#table_drawer_icon');
     tableDrawerContent = $('#table_drawer_content');
@@ -63,11 +63,11 @@ export async function initAppHeaderTableDrawer() {
     inlineDrawerHeaderContent = $('#inline_drawer_header_content');
     tableDrawerContentHeader = $('#table_drawer_content_header');
 
-    // DOM 修改 (只执行一次)
+    // DOM modification (executed only once)
     $('.fa-panorama').removeClass('fa-panorama').addClass('fa-image');
     $('.fa-user-cog').removeClass('fa-user-cog').addClass('fa-user');
 
-    // 异步获取内容 (只执行一次)
+    // Asynchronously fetch content (executed only once)
     if (tableViewDom === null) {
         tableViewDom = await getChatSheetsView(-1);
     }
@@ -80,61 +80,61 @@ export async function initAppHeaderTableDrawer() {
         settingContainer = header.append($('.memory_enhancement_container').find('#memory_enhancement_settings_inline_drawer_content'));
     }
 
-    // 创建容器 div 并将内容包裹起来 (只执行一次)
-    // **** 修改点：创建时就缓存 jQuery 对象 ****
+    // Create container divs and wrap content inside (executed only once)
+    // **** Modification: Cache jQuery objects at creation time ****
     databaseContentDiv = $(`<div id="database-content" style="width: 100%; height: 100%; overflow: hidden;"></div>`).append(tableViewDom);
     editorContentDiv = $(`<div id="editor-content" style="width: 100%; height: 100%; display: none; overflow: hidden;"></div>`).append(tableEditDom);
     settingContentDiv = $(`<div id="setting-content" style="width: 100%; height: 100%; display: none; overflow: hidden;"></div>`).append(settingContainer);
 
-    // 将所有内容容器添加到 appHeaderTableContainer 中 (只执行一次)
+    // Append all content containers into appHeaderTableContainer (executed only once)
     appHeaderTableContainer.append(databaseContentDiv);
     appHeaderTableContainer.append(editorContentDiv);
     appHeaderTableContainer.append(settingContentDiv);
 
-    // 初始化按钮状态 (只执行一次)
+    // Initialize button states (executed only once)
     updateButtonStates(databaseButton);
 
     $('#tableUpdateTag').click(function() {
         $('#extensions_details').trigger('click');
     });
 
-    // **** 修改点：按钮点击事件调用新的 switchContent 函数 ****
+    // **** Modification: Button click events now call the new switchContent function ****
     databaseButton.on('click', function() {
         if (updateButtonStates(databaseButton)) {
-            switchContent(databaseContentDiv); // 传入缓存的 jQuery 对象
+            switchContent(databaseContentDiv); // Pass cached jQuery object
         }
     });
 
     editorButton.on('click', function() {
         if (updateButtonStates(editorButton)) {
-            switchContent(editorContentDiv); // 传入缓存的 jQuery 对象
+            switchContent(editorContentDiv); // Pass cached jQuery object
             // updateTableContainerPosition();
         }
     });
 
     settingButton.on('click', function() {
         if (updateButtonStates(settingButton)) {
-            switchContent(settingContentDiv); // 传入缓存的 jQuery 对象
+            switchContent(settingContentDiv); // Pass cached jQuery object
         }
     });
 
     isEventListenersBound = true;
 
-    // 移除旧版本元素 (只执行一次)
+    // Remove legacy elements (executed only once)
     $('.memory_enhancement_container').remove();
 }
 
 /**
- * 打开/关闭应用头部表格抽屉 (保持不变)
+ * Open/close the application header table drawer (unchanged)
  */
 export async function openAppHeaderTableDrawer(target = undefined) {
     if (!isEventListenersBound) {
         await initAppHeaderTableDrawer();
     }
 
-    // 如果目标是设置按钮，则直接打开设置抽屉
+    // If target is the settings button, directly open the settings drawer
     if (tableDrawerIcon.hasClass('closedIcon')) {
-        // 关闭其他抽屉
+        // Close other drawers
         $('.openDrawer').not('#table_drawer_content').not('.pinnedOpen').addClass('resizing').each((_, el) => {
             EDITOR.slideToggle(el, {
                 ...EDITOR.getSlideToggleOptions(),
@@ -146,7 +146,7 @@ export async function openAppHeaderTableDrawer(target = undefined) {
         $('.openIcon').not('#table_drawer_icon').not('.drawerPinnedOpen').toggleClass('closedIcon openIcon');
         $('.openDrawer').not('#table_drawer_content').not('.pinnedOpen').toggleClass('closedDrawer openDrawer');
 
-        // 打开当前抽屉
+        // Open current drawer
         tableDrawerIcon.toggleClass('closedIcon openIcon');
         tableDrawerContent.toggleClass('closedDrawer openDrawer');
 
@@ -160,7 +160,7 @@ export async function openAppHeaderTableDrawer(target = undefined) {
         });
 
         if (target) {
-            // 如果目标是设置按钮，则直接打开设置抽屉
+            // If target is settings button, directly open settings drawer
             if (target === 'database') {
                 databaseButton.trigger('click');
             } else if (target === 'setting') {
@@ -170,7 +170,7 @@ export async function openAppHeaderTableDrawer(target = undefined) {
             }
         }
     } else {
-        // 关闭当前抽屉
+        // Close current drawer
         tableDrawerIcon.toggleClass('openIcon closedIcon');
         tableDrawerContent.toggleClass('openDrawer closedDrawer');
 
@@ -186,35 +186,35 @@ export async function openAppHeaderTableDrawer(target = undefined) {
 }
 
 /**
- * **** 新增：通用的内容切换函数 ****
- * @param {jQuery} targetContent 要显示的目标内容的 jQuery 对象
+ * **** New: Generic content-switching function ****
+ * @param {jQuery} targetContent jQuery object of the target content to display
  */
 async function switchContent(targetContent) {
-    // **** 修改点：直接使用 :visible 伪类，或者维护一个变量记录当前显示的元素 ****
-    // 使用 :visible 仍然需要查询，但比查找所有子元素再过滤要好一点
-    // 或者，可以引入一个变量来跟踪当前显示的div，避免DOM查询
+    // **** Modification: Directly use :visible pseudo-selector or maintain a variable tracking the currently visible element ****
+    // Using :visible still requires querying, but is better than filtering all children
+    // Alternatively, maintain a variable tracking the currently visible div to avoid DOM queries
     const currentContent = appHeaderTableContainer.children(':visible');
 
-    // 如果目标内容就是当前内容，则不执行操作 (理论上 updateButtonStates 已经处理了，但加一层保险)
+    // If the target content is already displayed, do nothing (updateButtonStates handles this in theory, but extra safety check added)
     if (currentContent.is(targetContent)) {
         return;
     }
 
-    // 停止当前正在进行的动画 (以防用户快速点击)
-    currentContent.stop(true, false); // 清除动画队列，不跳转到动画末尾
-    targetContent.stop(true, false);  // 清除动画队列，不跳转到动画末尾
+    // Stop any currently running animations (to handle rapid user clicks)
+    currentContent.stop(true, false); // Clear animation queue, do not jump to animation end
+    targetContent.stop(true, false);  // Clear animation queue, do not jump to animation end
 
     if (currentContent.length > 0) {
-        // **** 修改点：简化动画链，移除 .delay().hide(0) ****
-        // slideUp 会在动画结束后自动设置 display: none
+        // **** Modification: Simplify animation chain, remove .delay().hide(0) ****
+        // slideUp automatically sets display: none upon animation completion
         currentContent.slideUp({
             duration: timeOut,
             easing: easing,
-            // queue: false // 如果希望动画不排队，可以考虑，但可能导致视觉效果重叠
+            // queue: false // Consider disabling queuing if overlapping visual effects are acceptable
         });
     }
 
-    // 使用 slideDown 显示目标内容
+    // Use slideDown to show target content
     targetContent.slideDown({
         duration: timeOut,
         easing: easing,
