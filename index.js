@@ -828,18 +828,18 @@ jQuery(async () => {
     }
 
     // Version check
-    fetch("http://api.muyoo.com.cn/check-version", {
-        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clientVersion: VERSION, user: USER.getContext().name1 })
-    }).then(res => res.json()).then(res => {
-        if (res.success) {
-            if (!res.isLatest) {
-                $("#tableUpdateTag").show()
-                $("#setting_button_new_tag").show() // Show "New" tag on settings button
-            }
-            if (res.toastr) EDITOR.warning(res.toastrText)
-            if (res.message) $("#table_message_tip").html(res.message)
-        }
-    })
+    // fetch("http://api.muyoo.com.cn/check-version", {
+    //     method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ clientVersion: VERSION, user: USER.getContext().name1 })
+    // }).then(res => res.json()).then(res => {
+    //     if (res.success) {
+    //         if (!res.isLatest) {
+    //             $("#tableUpdateTag").show()
+    //             $("#setting_button_new_tag").show() // Show "New" tag on settings button
+    //         }
+    //         if (res.toastr) EDITOR.warning(res.toastrText)
+    //         if (res.message) $("#table_message_tip").html(res.message)
+    //     }
+    // })
 
     $('.extraMesButtons').append('<div title="View Tables" class="mes_button open_table_by_id">Tables</div>');
 
