@@ -27,7 +27,7 @@
 </p>
 
 <p>
-    <b>🚀 Latest Version: v2.0.3 🚀</b>
+    <b>🚀 Latest Version: v2.2.0 🚀</b>
 </p>
 </div>
 
