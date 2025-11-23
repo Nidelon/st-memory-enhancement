@@ -189,7 +189,7 @@ async function importTableSet() {
                             'Replace current chat template? (Important: This will permanently clear old table data in this chat)',
                             EDITOR.POPUP_TYPE.CONFIRM,
                             'Template Replacement Confirmation',
-                            { okButton: 'Clear and Apply Preset Tables', cancelButton: 'Do Not Replace' }
+                            { okButton: 'Clear Old Table Data and Apply New Preset Template', cancelButton: 'Do Not Replace, New Preset Template Will Not Work Properly If It Differs from the Old Table' }
                         );
                         if (!confirmReplace) {
                             EDITOR.success && EDITOR.success('Template replacement canceled');
