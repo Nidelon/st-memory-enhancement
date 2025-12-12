@@ -8,6 +8,12 @@
   <h3>
     I just decided to do a full translation into English. I have no idea how stable everything is - I tried it, and it seems to work.
   </h3>
+  <h3>
+    To the original authors. I did this purely for personal convenience. However, if forking your repository isn't allowed due to the license, please let me know so I can remove it from public access
+  </h3>
+  <h3>
+    致原作者。我创建此仓库仅为个人方便使用。但若根据本项目的许可证不允许公开 Fork，请告知我，我将立即撤下公开访问。
+  </h3>
 </div>
 
 <div align="center">
