@@ -175,29 +175,48 @@ async function importTableSet() {
 
                 renderSetting(); // Re-render settings UI to apply new settings
                 // Re-convert templates
-                initTableStructureToTemplate()
-                BASE.refreshTempView(true) // Refresh template view
+                initTableStructureToTemplate();
+                BASE.refreshTempView(true); // Refresh template view
                 EDITOR.success('Import successful and selected settings have been reset'); // Notify user of successful import
 
-                // [New] If all table data in current session is "empty", clear chat domain and override with global template
+                // When importing a preset, optionally clear the chat domain and override it with the global template.
                 try {
                     const { piece } = USER.getChatPiece() || {};
                     // Skip if no carrier (cannot save to chat history)
                     if (piece) {
-                        // Prompt user confirmation before replacement
-                        const confirmReplace = await EDITOR.callGenericPopup(
-                            'Replace current chat template? (Important: This will permanently clear old table data in this chat)',
+                        // Check if the current chat's table data is effectively empty
+                        const chatArr = USER.getContext()?.chat || [];
+                        let isSheetEmpty = true;
+                        for (let i = chatArr.length - 1; i >= 0; i--) {
+                            if (chatArr[i] && Object.prototype.hasOwnProperty.call(chatArr[i], 'hash_sheets')) {
+                                for (const sheet_id in chatArr[i].hash_sheets) {
+                                    // If any sheet has more than one row (header + at least one data row), it's not empty
+                                    if (chatArr[i].hash_sheets[sheet_id].length > 1) {
+                                        isSheetEmpty = false;
+                                        break;
+                                    }
+                                }
+                                break; // Only check the latest message with sheets
+                            }
+                        }
+
+                        // If sheet data is empty, auto-confirm replacement; otherwise, prompt user
+                        const confirmReplace = isSheetEmpty ? true : await EDITOR.callGenericPopup(
+                            'Replace current chat template? (Important: This will permanently clear old table data in this chat)<br>' +
+                            'Only skip replacement if the new and old presets use identical templates.<br>' +
+                            'If switching to a different preset, replacement is required for proper functionality.<br>' +
+                            'For version updates of the same preset, consult the release notes—skip only if the template structure is unchanged.',
                             EDITOR.POPUP_TYPE.CONFIRM,
                             'Template Replacement Confirmation',
-                            { okButton: 'Clear Old Table Data and Apply New Preset Template', cancelButton: 'Do Not Replace, New Preset Template Will Not Work Properly If It Differs from the Old Table' }
+                            { okButton: 'Replace', cancelButton: 'Do Not Replace' }
                         );
+
                         if (!confirmReplace) {
                             EDITOR.success && EDITOR.success('Template replacement canceled');
                         } else {
                             BASE.sheetsData.context = {}; // Clear chat domain and rebuild with global template
                             // Remove hash_sheets from all pieces in chat list
                             try {
-                                const chatArr = USER.getContext()?.chat || [];
                                 for (const msg of chatArr) {
                                     if (msg && Object.prototype.hasOwnProperty.call(msg, 'hash_sheets')) {
                                         delete msg.hash_sheets;
@@ -208,7 +227,7 @@ async function importTableSet() {
                             buildSheetsByTemplates(piece);
                             // Refresh UI and system messages
                             BASE.refreshContextView();
-                            BASE.refreshTempView(true)
+                            BASE.refreshTempView(true);
                             updateSystemMessageTableStatus(true);
                             EDITOR.success('Global template successfully applied to chat domain');
                         }
